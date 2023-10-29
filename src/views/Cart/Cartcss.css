@@ -1,0 +1,21 @@
+/* Define custom scrollbar styles */
+.scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #4a90e2 #f3f3f3;
+  }
+  
+  /* Define custom scrollbar width */
+  .scrollbar::-webkit-scrollbar {
+    width: 8px; /* Adjust the width as needed */
+  }
+  
+  /* Define custom scrollbar track color */
+  .scrollbar::-webkit-scrollbar-track {
+    background: #f3f3f3; /* Track color */
+  }
+  
+  /* Define custom scrollbar thumb color */
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: gray;
+    border-radius: 10px;
+  }
