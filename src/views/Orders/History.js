@@ -74,7 +74,7 @@ export default function History() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get(`/GetOrders?cartId=123456&Status=canceled&Status=approved`)
+        .get(`/GetOrders?cartId=123456&Status=canceled&Status=approved&Status=attended`)
         .then((response) => {
           const orderData = response.data.existedOrders;
           setUserlist(orderData);
@@ -216,6 +216,8 @@ export default function History() {
                                     ? 'bg-green-200'
                                     : Status === 'canceled'
                                     ? 'bg-red-200'
+                                    : Status === 'attended'
+                                    ? 'bg-blue-200'
                                     : ''
                                 }`}
                               >

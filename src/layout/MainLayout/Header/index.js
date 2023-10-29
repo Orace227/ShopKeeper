@@ -9,8 +9,9 @@ import LogoSection from '../LogoSection';
 import SearchSection from './SearchSection';
 import ProfileSection from './ProfileSection';
 // assets
-import { IconMenu2, IconShoppingCart } from '@tabler/icons';
-import { Link } from 'react-router-dom';
+// IconShoppingCart
+import { IconMenu2 } from '@tabler/icons';
+// import { Link } from 'react-router-dom';
 
 // ==============================|| MAIN NAVBAR / HEADER ||============================== //
 
@@ -58,11 +59,11 @@ const Header = ({ handleLeftDrawerToggle }) => {
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
       {/* notification & profile */}
-      <div className="m-2 mr-3 hover:cursor-pointer bg-purple-200 text-purple-600 p-[6px]  rounded-lg">
+      {/* <div className="m-2 mr-3 hover:cursor-pointer bg-purple-200 text-purple-600 p-[6px]  rounded-lg">
         <Link to={`/Cart`}>
           <IconShoppingCart />
         </Link>
-      </div>
+      </div> */}
       {/* <NotificationSection /> */}
       <ProfileSection />
     </>

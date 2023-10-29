@@ -80,6 +80,8 @@ export default function OrderView() {
                         ? 'bg-green-200'
                         : orderData.Status === 'canceled'
                         ? 'bg-red-200'
+                        : orderData.Status === 'attended'
+                        ? 'bg-blue-200'
                         : ''
                     }`}
                   >
@@ -109,9 +111,32 @@ export default function OrderView() {
                     <Typography variant="body1" className="text-base text-gray-500 mb-2">
                       <strong>Description:</strong> {product.description}
                     </Typography>
-                    <Typography variant="body1" className="text-base text-gray-500">
-                      <strong>Quantity:</strong> {product.quantity}
+                    <Typography variant="body1" className="text-base text-gray-500 mb-2">
+                      <strong>Quantity:</strong> {product.actualQuantity}
                     </Typography>
+                    <Typography variant="body1" style={{ fontSize: '17px' }}>
+                      <div className="flex text-base text-gray-500 mb-2">
+                        <strong className="">Status: </strong>
+                        <div
+                          className={` ml-1 w-24 rounded-full text-center ${
+                            product.Status === 'pending'
+                              ? 'bg-yellow-200'
+                              : product.Status === 'approved'
+                              ? 'bg-green-200'
+                              : product.Status === 'canceled'
+                              ? 'bg-red-200'
+                              : ''
+                          }`}
+                        >
+                          {product.Status}
+                        </div>
+                      </div>
+                    </Typography>
+                    {product?.remarks && (
+                      <Typography variant="body1" className="text-base text-gray-500">
+                        <strong>Remark:</strong> {product.remarks}
+                      </Typography>
+                    )}
                   </div>
                   {(index + 1) % 2 === 0 && <div style={{ width: '100%', clear: 'both' }}></div>}
                 </Grid>

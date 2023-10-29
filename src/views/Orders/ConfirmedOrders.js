@@ -74,7 +74,7 @@ export default function ConfirmedOrders() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get(`/GetOrders?cartId=123456&Status=approved`)
+        .get(`/GetOrders?cartId=123456&Status=approved&Status=attended`)
         .then((response) => {
           const orderData = response.data.existedOrders;
           setUserlist(orderData);
@@ -214,6 +214,8 @@ export default function ConfirmedOrders() {
                                     ? 'bg-green-200'
                                     : Status === 'canceled'
                                     ? 'bg-red-200'
+                                    : Status === 'attended'
+                                    ? 'bg-blue-200'
                                     : ''
                                 }`}
                               >

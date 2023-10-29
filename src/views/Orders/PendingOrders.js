@@ -13,12 +13,10 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   // DialogActions,
-  TextField,
   Grid
 } from '@mui/material';
 // components
@@ -27,11 +25,10 @@ import Scrollbar from '../../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 import { useEffect } from 'react';
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import ProductTable from './ProductTable';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -107,9 +104,9 @@ export default function PendingOrders() {
   };
   const handleOpenEditModal = (row) => {
     try {
-      console.log(row);
-      const user = USERLIST.find((user) => user.clientId == row.clientId);
-      console.log(user);
+      // console.log(row);
+      const user = USERLIST.find((user) => user.orderId == row.orderId);
+      // console.log(user);
       setEditedUserData(user);
       setOpenEditModal(true);
     } catch (error) {
@@ -119,15 +116,6 @@ export default function PendingOrders() {
   // Function to close the edit modal
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
-  };
-  const handleSubmit = async (values) => {
-    // console.log(editedUserData);
-    console.log('values', values);
-    const updatedCustomer = await axios.post('/updateClient', values);
-    console.log(updatedCustomer);
-    toast.success('Customer updated successfully!!');
-    handleSaveChanges();
-    window.location.reload();
   };
 
   useEffect(() => {
@@ -171,29 +159,64 @@ export default function PendingOrders() {
 
   const handleDeleteOrder = async (row) => {
     try {
-      const user = USERLIST.find((user) => user.orderId == row.orderId);
-      console.log(user);
-      const isDelete = window.confirm('Are you sure you want to delete Order having name ' + user.title);
-      if (isDelete) {
-        const deletedCustomer = await axios.post(`/DeleteOrder?cartId=${row.cartId}&orderId=${row.orderId}`);
-        if (deletedCustomer) {
-          toast.success('Order deleted successfully!!');
+      // row.products = updatedProducts;
+      row.Status = 'canceled';
+      row.products.forEach((product) => {
+        console.log(product);
+        product.Status = 'canceled';
+        product.updatedQuantity = product.actualQuantity;
+      });
+      const currentDate = new Date();
+      const formattedDate = currentDate.toISOString();
+      row.updatedAt = formattedDate;
+      console.log(row);
+      const updatedOrder = await axios.post('/UpdateOrder', row);
+      if (updatedOrder) {
+        console.log(updatedOrder);
+        handleCloseEditModal();
+        toast.success('Whole Order Canceled successfully!!');
+        setTimeout(() => {
           window.location.reload();
-        }
+        }, 500);
       }
     } catch (err) {
       console.log({ error: err });
     }
   };
 
+  const handleAcceptedOrder = async (row) => {
+    // row.products = updatedProducts;
+    row.Status = 'approved';
+    row.products.forEach((product) => {
+      console.log(product);
+      product.Status = 'approved';
+      product.updatedQuantity = product.actualQuantity;
+    });
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString();
+    row.updatedAt = formattedDate;
+    console.log(row);
+    const updatedOrder = await axios.post('/UpdateOrder', row);
+    if (updatedOrder) {
+      console.log(updatedOrder);
+      handleCloseEditModal();
+      toast.success('Whole Order Approved successfully!!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    }
+  };
+
+  // const handleEdit = (row) => {
+  //   row.products = updatedProducts;
+  //   console.log('this is main order :', row);
+  // };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
-  const validationSchema = Yup.object().shape({
-    firstName: Yup.string().required('First Name is Required')
-  });
 
   return (
     <>
@@ -206,44 +229,40 @@ export default function PendingOrders() {
         <Toaster />
         {openEditModal && (
           <Dialog open={openEditModal} onClose={handleCloseEditModal} maxWidth="lg" fullWidth>
-            <DialogTitle>Edit Product</DialogTitle>
+            <DialogTitle className="text-lg">Give Remarks</DialogTitle>
             <DialogContent>
               <Container>
-                <Formik initialValues={editedUserData} validationSchema={validationSchema} onSubmit={handleSubmit}>
-                  {() => (
-                    <>
-                      {console.log(editedUserData)}
-                      <Form>
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} sm={6}>
-                            <Field name="title" as={TextField} label="Title" fullWidth margin="normal" variant="outlined" />
-                            <ErrorMessage name="title" component="div" className="error" style={{ color: 'red' }} />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Field
-                              name="Status"
-                              as={TextField}
-                              className={`${editedUserData.Status === 'pending' ? ' border-yellow-500' : 'text-yellow-500'}`}
-                              label="Status"
-                              fullWidth
-                              margin="normal"
-                              variant="outlined"
-                              disabled
-                            />
-                            <ErrorMessage name="Status" component="div" className="error" style={{ color: 'red' }} />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Field name="createdAt" as={TextField} label="Date" fullWidth margin="normal" variant="outlined" disabled />
-                            <ErrorMessage name="createdAt" component="div" className="error" style={{ color: 'red' }} />
-                          </Grid>
-                        </Grid>
-                        <Button type="submit" color="primary" size="large" style={{ marginTop: '1rem' }}>
-                          Save
-                        </Button>
-                      </Form>
-                    </>
-                  )}
-                </Formik>
+                <>
+                  {/* {console.log(editedUserData)} */}
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={7}>
+                      <div className={`text-2xl `}>
+                        <h1 className="font-bold">
+                          Title:<span className="font-semibold"> {editedUserData.title}</span>
+                        </h1>
+                      </div>
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <div
+                        className={`p-1 w-[90px]  rounded-full text-center ${
+                          editedUserData.Status === 'pending'
+                            ? 'bg-yellow-200'
+                            : Status === 'approved'
+                            ? 'bg-green-200'
+                            : Status === 'canceled'
+                            ? 'bg-red-200'
+                            : ''
+                        }`}
+                      >
+                        {editedUserData.Status}
+                      </div>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <ProductTable row={editedUserData} handleCloseEditModal={handleCloseEditModal} />
+                    </Grid>
+                  </Grid>
+                </>
               </Container>
             </DialogContent>
           </Dialog>
@@ -301,17 +320,36 @@ export default function PendingOrders() {
                               </div>
                             </TableCell>
                             <TableCell align="left">
-                              <IconButton size="large" color="inherit" onClick={() => handleOpenEditModal(row)}>
-                                <Iconify icon={'eva:edit-fill'} />
+                              <IconButton
+                                size="large"
+                                color="inherit"
+                                className="bg-green-300 hover:bg-green-500"
+                                onClick={() => {
+                                  handleAcceptedOrder(row);
+                                }}
+                              >
+                                <Iconify icon={'eva:checkmark-outline'} /> {/* Accept icon */}
                               </IconButton>
                               <IconButton
                                 size="large"
+                                className="bg-blue-300 hover:bg-blue-500 ml-2"
+                                color="inherit"
+                                onClick={() => {
+                                  // handleDeleteOrder(row);
+                                  handleOpenEditModal(row);
+                                }}
+                              >
+                                <Iconify icon={'eva:edit-outline'} />
+                              </IconButton>
+                              <IconButton
+                                size="large"
+                                className="bg-red-300 hover:bg-red-500 ml-2"
                                 color="inherit"
                                 onClick={() => {
                                   handleDeleteOrder(row);
                                 }}
                               >
-                                <Iconify icon={'eva:trash-2-outline'} />
+                                <Iconify icon={'eva:close-outline'} />
                               </IconButton>
                             </TableCell>
                           </TableRow>
@@ -382,3 +420,197 @@ export default function PendingOrders() {
     </>
   );
 }
+// const ProductTable = ({ row }) => {
+//   const { products } = row;
+//   console.log({ products });
+//   const [remarksMap, setRemarksMap] = useState({});
+//   const [QtyMap, setQtyMap] = useState({});
+//   const [updatedProducts, setUpdatedProduct] = useState([]);
+
+//   const handleRemarksChange = (productId, remarks) => {
+//     setRemarksMap((prevRemarks) => ({
+//       ...prevRemarks,
+//       [productId]: remarks
+//     }));
+//   };
+//   const handleQTYChange = (productId, QTY, QTYinStock) => {
+//     // const parsedQTY = parseInt(QTY, 10); // Parse the input as an integer
+
+//     // Check if the parsed quantity is not more than QTYinStock
+//     if ((/^[1-9]\d*$/.test(QTY) || QTY == '') && QTY <= QTYinStock) {
+//       setQtyMap((prevQty) => ({
+//         ...prevQty,
+//         [productId]: QTY
+//       }));
+//     }
+//   };
+//   const addQuantitiesForAllProducts = (products) => {
+//     products?.forEach((product) => {
+//       handleQTYChange(product.id, product.actualQuantity, 100);
+//     });
+//   };
+
+//   const handleAcceptSpecificOrder = async (product) => {
+//     try {
+//       product.Status = 'approved';
+//       const productId = product.id;
+//       const remark = remarksMap[productId] || ''; // Get the remark from remarksMap
+//       const Qty = QtyMap[productId] || ''; // Get the remark from remarksMap
+//       // Update the product's remarks field with the retrieved remark
+//       const updatedProduct = { ...product, remarks: remark, updatedQuantity: Qty };
+//       console.log(updatedProduct);
+//       const Products = [...updatedProducts, updatedProduct];
+//       console.log(Products);
+//       setUpdatedProduct(Products);
+//       console.log({ products: updatedProducts });
+//     } catch (err) {
+//       console.log({ error: err });
+//     }
+//   };
+//   const handleCancelSpecificOrder = async (product) => {
+//     try {
+//       product.Status = 'canceled';
+//       const productId = product.id;
+//       const remark = remarksMap[productId] || ''; // Get the remark from remarksMap
+//       const Qty = QtyMap[productId] || '';
+//       const updatedProduct = { ...product, remarks: remark, updatedQuantity: Qty };
+//       console.log(updatedProduct);
+//       const Products = [...updatedProducts, updatedProduct];
+//       console.log(Products);
+//       setUpdatedProduct(Products);
+//       console.log({ products: updatedProducts });
+//     } catch (err) {
+//       console.log({ error: err });
+//     }
+//   };
+//   const handleEdit = (row) => {
+//     row.products = updatedProducts;
+//     console.log(row);
+//   };
+
+//   useEffect(() => {
+//     // Call the function with the array of products and the desired quantity
+//     addQuantitiesForAllProducts(products);
+//     // console.log({ QtyMap });
+//   }, []);
+
+//   return (
+//     <>
+//       <div className="overflow-x-auto">
+//         <table className="min-w-full">
+//           <thead>
+//             <tr>
+//               <th className="px-6 py-3 bg-gray-200 text-left">ID</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Purchaser Name</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Department</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Mobile No</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Designation</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Title</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Category</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Description</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Image</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Quantity</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Quantity in Stock</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Remarks</th>
+//               <th className="px-6 py-3 bg-gray-200 text-left">Action</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {products?.map((product) => {
+//               // Check if the product's ID is in updatedProducts
+//               if (updatedProducts.some((updatedProduct) => updatedProduct.id === product.id)) {
+//                 return null; // Don't render the product if it's in updatedProducts
+//               } else if (products?.length == 0) {
+//                 return;
+//               }
+
+//               return (
+//                 <tr key={product.id}>
+//                   <td className="px-6 py-4 whitespace-nowrap">{product.id}</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">{product.title}</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">{product.category}</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">{product.description}</td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     <img src={product.imageUrl} alt={product.title} className="max-w-xs h-[100px]" />
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     <input
+//                       type="text"
+//                       value={QtyMap[product.id]}
+//                       onChange={(e) => handleQTYChange(product.id, e.target.value, 100)}
+//                       className="w-[200px] px-3 py-4 border rounded"
+//                       placeholder="Edit Quantity"
+//                     />
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">100</td>
+//                   <td className="px-6 py-4 w-auto">
+//                     <textarea
+//                       value={remarksMap[product.id] || ''}
+//                       onChange={(e) => handleRemarksChange(product.id, e.target.value)}
+//                       className="w-[200px] h-[100px] px-3 py-4 border rounded"
+//                       placeholder="Add remarks"
+//                     />
+//                     {(remarksMap[product?.id] || '').length < 20 && <p className="mt-1 text-xs text-red-500">*Please enter Remark</p>}
+//                   </td>
+//                   <td className="px-6 py-4 w-auto">
+//                     <IconButton
+//                       size="large"
+//                       color="inherit"
+//                       className="bg-green-300 hover:bg-green-500"
+//                       onClick={() => {
+//                         handleAcceptSpecificOrder(product);
+//                       }}
+//                       disabled={(remarksMap[product?.id] || '').length < 20}
+//                     >
+//                       <Iconify icon={'eva:checkmark-outline'} /> {/* Accept icon */}
+//                     </IconButton>
+//                     <IconButton
+//                       size="large"
+//                       className="bg-red-300 hover:bg-red-500 mt-2"
+//                       color="inherit"
+//                       onClick={() => {
+//                         handleCancelSpecificOrder(product);
+//                       }}
+//                       disabled={(remarksMap[product?.id] || '').length < 20}
+//                     >
+//                       <Iconify icon={'eva:close-outline'} />
+//                     </IconButton>
+//                   </td>
+//                 </tr>
+//               );
+//             })}
+//             {products?.length > 0 &&
+//               products?.filter((product) => !updatedProducts.some((updatedProduct) => updatedProduct.id === product.id)).length === 0 && (
+//                 <tr>
+//                   <td colSpan="13" className="text-center py-4">
+//                     <div className="bg-gray-200 p-4 border  border-gray-300 rounded">
+//                       <h1 className="text-2xl font-bold text-red-500">No products here for Action</h1>
+//                       <h1>
+//                         Click on <span className="font-bold text-blue-500">Finish Order</span> to Complete Order
+//                       </h1>
+//                     </div>
+//                   </td>
+//                 </tr>
+//               )}
+//           </tbody>
+//         </table>
+//       </div>
+
+//       <Button
+//         className=" bg-purple-400 hover:text-black hover:bg-purple-600 text-black hover:scale-105"
+//         color="primary"
+//         size="large"
+//         style={{ marginTop: '1rem' }}
+//         onClick={() => {
+//           handleEdit(row);
+//         }}
+//       >
+//         Finish Order
+//       </Button>
+//     </>
+//   );
+// };

@@ -1,11 +1,11 @@
 import dashboard from './dashboard';
-import pages from './pages';
+// import pages from './pages';
 import History from './History';
 
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [dashboard, pages, History]
+  items: [dashboard, History]
 };
 
 export default menuItems;
