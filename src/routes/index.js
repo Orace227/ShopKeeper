@@ -1,11 +1,53 @@
-import { useRoutes } from 'react-router-dom';
+import { lazy } from 'react';
 
-// routes
-import MainRoutes from './MainRoutes';
-import AuthenticationRoutes from './AuthenticationRoutes';
+// project imports
+import MainLayout from 'layout/MainLayout';
+import Loadable from 'ui-component/Loadable';
+import Categories from 'views/Products/Categories';
+import Products from 'views/Products/Products';
+import Cart from 'views/Cart/Cart';
+import NotFound from '404Notfound/404page';
+// dashboard routing
+const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
+const Customers = Loadable(lazy(() => import('views/Products/Customers')));
 
-// ==============================|| ROUTING RENDER ||============================== //
+// sample page routing
 
-export default function ThemeRoutes() {
-  return useRoutes([MainRoutes, AuthenticationRoutes]);
-}
+// ==============================|| MAIN ROUTING ||============================== //
+
+const MainRoutes = {
+  path: '/',
+  element: <MainLayout />,
+  children: [
+    {
+      path: '/',
+      element: <DashboardDefault />
+    },
+    {
+      path: 'dashboard',
+      element: <DashboardDefault />
+    },
+    { 
+      path: '/Products',
+      element: <Customers />
+    },
+    {
+      path: '/Categories',
+      element: <Categories />
+    },
+    {
+      path: '/BuyProducts/:category',
+      element: <Products />
+    },
+    {
+      path: '/Cart',
+      element: <Cart />
+    },
+    {
+      path: '*',
+      element: <NotFound />
+    }
+  ]
+};
+
+export default MainRoutes;
