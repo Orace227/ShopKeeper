@@ -56,8 +56,8 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
       product.Status = 'canceled';
       const productId = product.id;
       const remark = remarksMap[productId] || ''; // Get the remark from remarksMap
-      const Qty = QtyMap[productId] || '';
-      const updatedProduct = { ...product, remarks: remark, updatedQuantity: Qty };
+      // const Qty = QtyMap[productId] || '';
+      const updatedProduct = { ...product, remarks: remark };
       console.log(updatedProduct);
       const Products = [...updatedProducts, updatedProduct];
       console.log(Products);
@@ -73,15 +73,19 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString();
     row.updatedAt = formattedDate;
+    row.EmployeeNotification = true;
     console.log(row);
-    const updatedOrder = await axios.post('/UpdateOrder', row);
-    if (updatedOrder) {
-      console.log(updatedOrder);
-      handleCloseEditModal();
-      toast.success('Order updated successfully!!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+    let approved = confirm(`Are you sure you want to approve partially this Order No: ${row.orderId}?`);
+    if (approved) {
+      const updatedOrder = await axios.post('/UpdateOrder', row);
+      if (updatedOrder) {
+        console.log(updatedOrder);
+        handleCloseEditModal();
+        toast.success('Order Partially Approve Successfully!!');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
     }
   };
 
@@ -152,7 +156,9 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
                       className="w-[200px] h-[100px] px-3 py-4 border rounded"
                       placeholder="Add remarks"
                     />
-                    {(remarksMap[product?.id] || '').length < 20 && <p className="mt-1 text-xs text-red-500">*Please enter Remark</p>}
+                    {(remarksMap[product?.id] || '').length < 20 && (
+                      <p className="mt-1 text-xs text-red-500">*Please enter Remark for cancelation</p>
+                    )}
                   </td>
                   <td className="px-6 py-4 w-auto">
                     <IconButton
@@ -162,7 +168,6 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
                       onClick={() => {
                         handleAcceptSpecificOrder(product);
                       }}
-                      disabled={(remarksMap[product?.id] || '').length < 20}
                     >
                       <Iconify icon={'eva:checkmark-outline'} /> {/* Accept icon */}
                     </IconButton>

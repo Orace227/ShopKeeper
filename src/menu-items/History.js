@@ -26,6 +26,13 @@ const orders = {
           breadcrumbs: false
         },
         {
+          id: 'attendedOrders',
+          title: 'Attended Orders',
+          type: 'item',
+          url: '/AttendedOrders',
+          breadcrumbs: false
+        },
+        {
           id: 'confirmedOrders',
           title: 'Confirmed Orders',
           type: 'item',

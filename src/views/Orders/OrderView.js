@@ -114,6 +114,12 @@ export default function OrderView() {
                     <Typography variant="body1" className="text-base text-gray-500 mb-2">
                       <strong>Quantity:</strong> {product.actualQuantity}
                     </Typography>
+                    {product.Status !== 'canceled' && product.Status !== 'pending' && (
+                      <Typography variant="body1" className="text-base text-gray-500 mb-2">
+                        <strong>approvedQuantity:</strong> {product.updatedQuantity}
+                      </Typography>
+                    )}
+
                     <Typography variant="body1" style={{ fontSize: '17px' }}>
                       <div className="flex text-base text-gray-500 mb-2">
                         <strong className="">Status: </strong>

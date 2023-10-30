@@ -169,15 +169,19 @@ export default function PendingOrders() {
       const currentDate = new Date();
       const formattedDate = currentDate.toISOString();
       row.updatedAt = formattedDate;
+      row.EmployeeNotification = true;
       console.log(row);
-      const updatedOrder = await axios.post('/UpdateOrder', row);
-      if (updatedOrder) {
-        console.log(updatedOrder);
-        handleCloseEditModal();
-        toast.success('Whole Order Canceled successfully!!');
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+      let canceled = confirm(`Are you sure you want to canceled this Order No: ${row.orderId}?`);
+      if (canceled) {
+        const updatedOrder = await axios.post('/UpdateOrder', row);
+        if (updatedOrder) {
+          console.log(updatedOrder);
+          handleCloseEditModal();
+          toast.success('Whole Order Canceled successfully!!');
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        }
       }
     } catch (err) {
       console.log({ error: err });
@@ -195,15 +199,19 @@ export default function PendingOrders() {
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString();
     row.updatedAt = formattedDate;
+    row.EmployeeNotification = true;
     console.log(row);
-    const updatedOrder = await axios.post('/UpdateOrder', row);
-    if (updatedOrder) {
-      console.log(updatedOrder);
-      handleCloseEditModal();
-      toast.success('Whole Order Approved successfully!!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+    let approved = confirm(`Are you sure you want to approve this Order No: ${row.orderId}?`);
+    if (approved) {
+      const updatedOrder = await axios.post('/UpdateOrder', row);
+      if (updatedOrder) {
+        console.log(updatedOrder);
+        handleCloseEditModal();
+        toast.success('Whole Order Approved successfully!!');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
     }
   };
 
