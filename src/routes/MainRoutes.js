@@ -9,7 +9,6 @@ import Cart from 'views/Cart/Cart';
 import History from 'views/Orders/History';
 import NotFound from '404Notfound/404page';
 import PendingOrders from 'views/Orders/PendingOrders';
-import ConfirmedOrders from 'views/Orders/ConfirmedOrders';
 import OrderView from 'views/Orders/OrderView';
 import AttendedOrders from 'views/Orders/AttendedOrders';
 // dashboard routing
@@ -29,7 +28,7 @@ const MainRoutes = {
       element: <DashboardDefault />
     },
     {
-      path: 'dashboard',
+      path: '/dashboard',
       element: <DashboardDefault />
     },
     {
@@ -57,10 +56,6 @@ const MainRoutes = {
       element: <PendingOrders />
     },
     {
-      path: '/ConfirmedOrders',
-      element: <ConfirmedOrders />
-    },
-    {
       path: '/OrderView/:orderId',
       element: <OrderView />
     },
@@ -68,6 +63,7 @@ const MainRoutes = {
       path: '/AttendedOrders',
       element: <AttendedOrders />
     },
+
     {
       path: '*',
 

@@ -89,15 +89,14 @@ const FirebaseRegister = () => {
 
   const handleSubmit = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
-      const response = await axios.post('/register', values,
-      {
+      const response = await axios.post('/register', values, {
         withCredentials: true
       });
       if (response.data) {
         // Registration was successful
         setStatus({ success: true });
         console.log('success', response.data);
-        navigate("/dashboard");
+        navigate('/dashboard');
       } else {
         // Handle registration error
         setErrors({ submit: 'Registration failed' });
@@ -197,18 +196,20 @@ const FirebaseRegister = () => {
                   id="outlined-adornment-password-register"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 <ErrorMessage name="password" component={FormHelperText} error />
               </FormControl>
