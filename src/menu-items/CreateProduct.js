@@ -14,30 +14,22 @@ const orders = {
   children: [
     {
       id: 'icons',
-      title: 'Orders',
+      title: 'Products',
       type: 'collapse',
       icon: icons.IconPackages,
       children: [
         {
-          id: 'pandingOrders',
-          title: 'Panding Orders',
+          id: 'Products',
+          title: 'Products',
           type: 'item',
-          url: '/PendingOrders',
+          url: '/Products',
           breadcrumbs: false
         },
         {
-          id: 'attendedOrders',
-          title: 'Attended Orders',
+          id: 'CreateProducts',
+          title: 'Create Products',
           type: 'item',
-          url: '/AttendedOrders',
-          breadcrumbs: false
-        },
-
-        {
-          id: 'history',
-          title: 'Orders History',
-          type: 'item',
-          url: '/OrderHistory',
+          url: '/CreateProducts',
           breadcrumbs: false
         }
       ]
