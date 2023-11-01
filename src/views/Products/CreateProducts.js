@@ -31,6 +31,7 @@ const initialProduct = {
   productName: '',
   description: '',
   category: '',
+  minQty: 0,
   quantityInStock: '',
   productImgName: '',
   productImgPath: '',
@@ -162,7 +163,15 @@ const CreateProducts = () => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                           {/* <InputLabel htmlFor={`products[${index}].category`}>Category</InputLabel> */}
-                          <Field className="mt-4" name={`products[${index}].category`} as={Select} variant="outlined" fullWidth>
+                          <Field
+                            className="mt-4"
+                            // label="Select Category"
+                            placeholder="Select Category"
+                            name={`products[${index}].category`}
+                            as={Select}
+                            variant="outlined"
+                            fullWidth
+                          >
                             <MenuItem value="">Select Category</MenuItem>
                             {Category.map((option) => (
                               <MenuItem key={option.categoryId} value={option.name}>
@@ -186,12 +195,31 @@ const CreateProducts = () => {
                               min: 1
                             }}
                           />
+
                           <ErrorMessage
                             name={`products[${index}].quantityInStock`}
                             component="div"
                             className="error"
                             style={{ color: 'red' }}
                           />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Field
+                            name={`products[${index}].minQty`}
+                            as={TextField}
+                            label="Minimum Quantity "
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            type="number"
+                            inputProps={{
+                              inputMode: 'numeric'
+                            }}
+                          />
+                          <Typography variant="h4" gutterBottom>
+                            <div className="text-red-500 text-sm">{`*Product's minimum amount to get the Notification!`}</div>
+                          </Typography>
+                          <ErrorMessage name={`products[${index}].minQty`} component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12}>
                           <input

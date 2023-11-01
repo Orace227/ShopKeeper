@@ -10,6 +10,7 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
   const [remarksMap, setRemarksMap] = useState({});
   const [QtyMap, setQtyMap] = useState({});
   const [updatedProducts, setUpdatedProduct] = useState([]);
+  // const [UpdatedQuantity, setUpdatedQuantity] = useState([]);
 
   const handleRemarksChange = (productId, remarks) => {
     setRemarksMap((prevRemarks) => ({
@@ -27,10 +28,25 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
         [productId]: QTY
       }));
     }
+    console.log(QtyMap);
   };
+  const handleQTY = (productId, QTY) => {
+    // const parsedQTY = parseInt(QTY, 10); // Parse the input as an integer
+
+    // Check if the parsed quantity is not more than QTYinStock
+    if (/^[1-9]\d*$/.test(QTY) || QTY == '') {
+      setQtyMap((prevQty) => ({
+        ...prevQty,
+        [productId]: QTY
+      }));
+    }
+    console.log(QtyMap);
+  };
+
   const addQuantitiesForAllProducts = (products) => {
     products?.forEach((product) => {
-      handleQTYChange(product.productId, product.actualQuantity, 100);
+      console.log(product);
+      handleQTY(product.productId, product.actualQuantity);
     });
   };
 
@@ -75,9 +91,18 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
     row.updatedAt = formattedDate;
     row.EmployeeNotification = true;
     console.log(row);
-    let approved = confirm(`Are you sure you want to approve partially this Order No: ${row.orderId}?`);
+    let approved = confirm(`Are you sure you want to approve?cancel partially this Order No: ${row.orderId}?`);
     if (approved) {
       const updatedOrder = await axios.post('/UpdateOrder', row);
+      console.log(row.products);
+      for (let i = 0; i <= row.products.length; i++) {
+        console.log(row.products[i]);
+        let productData = row.products[i];
+        if (row?.products[i]?.Status === 'approved') {
+          const updatedQty = await axios.post(`/UpdateProductsQty?Quantity=${row.products[i].updatedQuantity}`, productData);
+          console.log(updatedQty);
+        }
+      }
       if (updatedOrder) {
         console.log(updatedOrder);
         handleCloseEditModal();
@@ -90,8 +115,9 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
   };
 
   useEffect(() => {
-    // Call the function with the array of products and the desired quantity
     addQuantitiesForAllProducts(products);
+
+    // Call the function with the array of products and the desired quantity
     // console.log({ QtyMap });
   }, []);
 
@@ -143,12 +169,13 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
                     <input
                       type="text"
                       value={QtyMap[product.productId]}
-                      onChange={(e) => handleQTYChange(product.productId, e.target.value, 100)}
+                      onChange={(e) => handleQTYChange(product.productId, e.target.value, product.availableQuantity)}
                       className="w-[200px] px-3 py-4 border rounded"
                       placeholder="Edit Quantity"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">100</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{product.availableQuantity}</td>
+
                   <td className="px-6 py-4 w-auto">
                     <textarea
                       value={remarksMap[product.productId] || ''}

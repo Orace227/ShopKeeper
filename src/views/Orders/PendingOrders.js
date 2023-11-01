@@ -82,12 +82,28 @@ export default function PendingOrders() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get(`/GetOrders?cartId=123456&Status=pending`)
+        .get(`/GetOrders?Status=pending`)
         .then((response) => {
           const orderData = response.data.existedOrders;
+          for (const Orders of orderData) {
+            for (const product of Orders.products) {
+              try {
+                console.log(product);
+                axios.get(`/GetProducts?productId=${product.productId}`).then((response) => {
+                  console.log(response); // Assuming the quantity is in the response data
+                  const getProduct = response.data.findProducts;
+                  console.log(getProduct);
+                  product.availableQuantity = getProduct[0].quantityInStock;
+                  console.log(product);
+                });
+              } catch (error) {
+                // Handle errors if the API request fails for a product
+                console.error(`Error fetching quantity for product ${product.productId}:`, error);
+              }
+            }
+          }
           setUserlist(orderData);
           //   toast.success('Order Fetched Successfully!');
-
           resolve(orderData);
         })
         .catch((error) => {
@@ -103,6 +119,7 @@ export default function PendingOrders() {
       error: 'Failed to fetch Pending Orders!!!'
     });
   };
+
   const handleOpenEditModal = (row) => {
     try {
       // console.log(row);
@@ -219,6 +236,14 @@ export default function PendingOrders() {
     let approved = confirm(`Are you sure you want to approve this Order No: ${row.orderId}?`);
     if (approved) {
       const updatedOrder = await axios.post('/UpdateOrder', row);
+      for (let i = 0; i <= row.products.length; i++) {
+        console.log(row.products[i]);
+        let productData = row.products[i];
+        if (row?.products[i]?.Status === 'approved') {
+          const updatedQty = await axios.post(`/UpdateProductsQty?Quantity=${row.products[i].updatedQuantity}`, productData);
+          console.log(updatedQty);
+        }
+      }
       if (updatedOrder) {
         console.log(updatedOrder);
         handleCloseEditModal();

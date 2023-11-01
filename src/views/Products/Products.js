@@ -71,6 +71,7 @@ const TABLE_HEAD = [
   { id: 'Description', label: 'Description', alignRight: false },
   { id: 'Category', label: 'Category', alignRight: false },
   { id: 'totalQuantity', label: 'total Quantity in Stock', alignRight: false },
+  { id: 'MinQty', label: 'Minimum Limit', alignRight: false },
   { id: 'action', label: 'Action' }
 ];
 
@@ -244,15 +245,16 @@ export default function Products() {
     try {
       const user = USERLIST.find((user) => user.productId == row.productId);
       console.log(user);
-      const isDelete = window.confirm('Are you sure you want to delete customer having name ' + user.productName);
+      const isDelete = window.confirm('Are you sure you want to delete Product having name ' + user.productName);
       if (isDelete) {
-        const deletedCustomer = await axios.post('/deleteClient', { productId: user.productId });
+        const deletedCustomer = await axios.post('/DeleteProducts', { productId: user.productId });
         if (deletedCustomer) {
-          toast.success('Customer deleted successfully!!');
+          toast.success('Product deleted successfully!!');
+          window.location.reload();
         }
       }
-      window.location.reload();
     } catch (err) {
+      toast.error('Product is not deleted successfully!!!');
       console.log({ error: err });
     }
   };
@@ -431,7 +433,14 @@ export default function Products() {
                           <ErrorMessage name="description" component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Select name="category" className='mt-4' variant="outlined" fullWidth value={values.category} onChange={handleChange}>
+                          <Select
+                            name="category"
+                            className="mt-4"
+                            variant="outlined"
+                            fullWidth
+                            value={values.category}
+                            onChange={handleChange}
+                          >
                             <MenuItem value="">Select Category</MenuItem>
                             {Category.map((option) => (
                               <MenuItem key={option.categoryId} value={option.name}>
@@ -457,6 +466,24 @@ export default function Products() {
                             onChange={handleChange}
                           />
                           <ErrorMessage name="quantityInStock" component="div" className="error" style={{ color: 'red' }} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            name={`minQty`}
+                            label="Minimum Quantity "
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={values.minQty}
+                            onChange={handleChange}
+                            type="number"
+                            inputProps={{
+                              inputMode: 'numeric'
+                            }}
+                          />
+                          <Typography variant="h4" gutterBottom>
+                            <div className="text-red-500 text-sm">{`*Product's minimum amount to get the Notification!`}</div>
+                          </Typography>
                         </Grid>
                         <Grid item xs={12}>
                           <input
@@ -516,7 +543,7 @@ export default function Products() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       // console.log(row);
-                      let { productId, productName, description, category, productImgPath, quantityInStock } = row;
+                      let { productId, productName, description, category, minQty, productImgPath, quantityInStock } = row;
                       const selectedUser = selected.indexOf(productId) !== -1;
                       productImgPath = `http://localhost:4469/${productImgPath}`;
 
@@ -529,11 +556,7 @@ export default function Products() {
                             <TableCell align="left">{productId}</TableCell>
 
                             <TableCell align="left">
-                              <Typography noWrap>
-                                <Link to={`/GetCustomer/${productId}`} style={{ textDecoration: 'none', color: 'black' }}>
-                                  {productName}
-                                </Link>
-                              </Typography>
+                              <Typography noWrap>{productName}</Typography>
                             </TableCell>
                             <TableCell align="left">
                               <img className="w-[130px] " src={productImgPath || blankImg} alt="img" />
@@ -544,6 +567,7 @@ export default function Products() {
                             <TableCell align="left">{category}</TableCell>
 
                             <TableCell align="left">{quantityInStock}</TableCell>
+                            <TableCell align="left">{minQty}</TableCell>
 
                             <TableCell align="left">
                               <IconButton size="large" color="inherit" onClick={() => handleOpenEditModal(row)}>

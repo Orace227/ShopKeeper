@@ -3,26 +3,42 @@ import { useEffect, useState } from 'react';
 // material-ui
 import { Grid } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
-
 // project imports
-import EarningCard from './EarningCard';
 import PopularCard from './PopularCard';
-import TotalOrderLineChartCard from './TotalOrderLineChartCard';
-import TotalIncomeDarkCard from './TotalIncomeDarkCard';
-import TotalIncomeLightCard from './TotalIncomeLightCard';
 import TotalGrowthBarChart from './TotalGrowthBarChart';
 import { gridSpacing } from 'store/constant';
-import { ToastContainer, toast } from 'react-toastify';
-import axios from 'axios';
+// import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import TotalPendingCard from './TotalPendingCard';
+import TotalProductCard from './TotalProductCard';
+import TotalCategoryCard from './TotalCategoryCard';
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const Dashboard = () => {
-  const [isLoading, setLoading] = useState(true);
   const navigate = useNavigate();
-
+  const [isLoading, setLoading] = useState(true);
   const handleNotification = async () => {
     try {
+      const isMin = await axios.get('/CheckMinLimit');
+      if (isMin.data.min) {
+        for (const product of isMin.data.findProducts) {
+          let Message = `Stock amount of ${product.productName} (${product.productId}) is reduced!!`;
+          toast.error(Message, {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            onClick: () => {
+              navigate('/Products');
+            }
+          });
+        }
+      }
       const Notification = await axios.get('/GetOrders?Status=pending');
       console.log(Notification.data.existedOrders);
       const NotificationArr = Notification.data.existedOrders;
@@ -55,7 +71,6 @@ const Dashboard = () => {
       console.log(err);
     }
   };
-
   useEffect(() => {
     setLoading(false);
     handleNotification();
@@ -63,25 +78,20 @@ const Dashboard = () => {
 
   return (
     <>
+      {/* <Toaster /> */}
       <ToastContainer />
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
           <Grid container spacing={gridSpacing}>
             <Grid item lg={4} md={6} sm={6} xs={12}>
-              <EarningCard isLoading={isLoading} />
+              <TotalPendingCard isLoading={isLoading} />
+            </Grid>
+
+            <Grid item lg={4} md={6} sm={6} xs={12}>
+              <TotalProductCard isLoading={isLoading} />
             </Grid>
             <Grid item lg={4} md={6} sm={6} xs={12}>
-              <TotalOrderLineChartCard isLoading={isLoading} />
-            </Grid>
-            <Grid item lg={4} md={12} sm={12} xs={12}>
-              <Grid container spacing={gridSpacing}>
-                <Grid item sm={6} xs={12} md={6} lg={12}>
-                  <TotalIncomeDarkCard isLoading={isLoading} />
-                </Grid>
-                <Grid item sm={6} xs={12} md={6} lg={12}>
-                  <TotalIncomeLightCard isLoading={isLoading} />
-                </Grid>
-              </Grid>
+              <TotalCategoryCard isLoading={isLoading} />
             </Grid>
           </Grid>
         </Grid>

@@ -199,15 +199,16 @@ export default function Categories() {
     try {
       const user = USERLIST.find((user) => user.categoryId == row.categoryId);
       console.log(user);
-      const isDelete = window.confirm('Are you sure you want to delete customer having name ' + user.productName);
+      const isDelete = window.confirm('Are you sure you want to delete Category having CategoryId ' + user.categoryId);
       if (isDelete) {
-        const deletedCustomer = await axios.post('/deleteClient', { categoryId: user.categoryId });
+        const deletedCustomer = await axios.post('/DeleteCategory', { categoryId: user.categoryId });
         if (deletedCustomer) {
-          toast.success('Customer deleted successfully!!');
+          toast.success('Category deleted successfully!!');
         }
       }
       window.location.reload();
     } catch (err) {
+      toast.error('Some error occurred when deleting Category  successfully!!');
       console.log({ error: err });
     }
   };

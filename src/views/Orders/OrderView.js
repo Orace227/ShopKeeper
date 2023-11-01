@@ -9,21 +9,41 @@ export default function OrderView() {
   let { orderId } = useParams();
   orderId = parseInt(orderId, 10);
 
-  const getOrders = () => {
-    return axios
-      .get(`/GetOrders?orderId=${orderId}`)
-      .then((response) => {
-        const oneOrder = response.data.existedOrders[0];
-        if (oneOrder) {
-          setOrderData(oneOrder);
-        } else {
-          throw new Error('No Order found');
+  const getOrders = async () => {
+    try {
+      const response = await axios.get(`/GetOrders?orderId=${orderId}`);
+      const orderData = response.data.existedOrders;
+
+      for (const order of orderData) {
+        for (const product of order.products) {
+          try {
+            console.log(product);
+            const productResponse = await axios.get(`/GetProducts?productId=${product.productId}`);
+            console.log(productResponse); // Assuming the quantity is in the response data
+            const getProduct = productResponse.data.findProducts;
+            console.log(getProduct);
+            product.availableQuantity = getProduct[0].quantityInStock;
+            console.log(product);
+          } catch (error) {
+            // Handle errors if the API request fails for a product
+            console.error(`Error fetching quantity for product ${product.productId}:`, error);
+          }
         }
-      })
-      .catch((error) => {
-        console.error('Error fetching order', error);
-        throw error;
-      });
+      }
+
+      console.log({ orderData });
+      const oneOrder = orderData[0];
+
+      if (oneOrder) {
+        console.log(oneOrder);
+        setOrderData(oneOrder);
+      } else {
+        throw new Error('No Order found');
+      }
+    } catch (error) {
+      console.error('Error fetching order', error);
+      throw error;
+    }
   };
 
   useEffect(() => {
@@ -48,7 +68,7 @@ export default function OrderView() {
   //     }
   //     return '';
   //   };
-
+  console.log(orderData);
   return (
     <>
       <Toaster />
@@ -112,7 +132,16 @@ export default function OrderView() {
                       <strong>Description:</strong> {product.description}
                     </Typography>
                     <Typography variant="body1" className="text-base text-gray-500 mb-2">
-                      <strong>Quantity:</strong> {product.actualQuantity}
+                      <div className="flex gap-10 my-2">
+                        <div>
+                          <strong>Quantity:</strong> {product.actualQuantity}
+                        </div>
+                        {product.Status == 'pending' && (
+                          <div>
+                            <strong>Available Quantity:</strong> {product.availableQuantity}
+                          </div>
+                        )}
+                      </div>
                     </Typography>
                     {product.Status !== 'canceled' && product.Status !== 'pending' && (
                       <Typography variant="body1" className="text-base text-gray-500 mb-2">

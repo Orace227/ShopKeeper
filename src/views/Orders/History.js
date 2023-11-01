@@ -75,7 +75,7 @@ export default function History() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get(`/GetOrders?cartId=123456&Status=canceled&Status=approved&Status=attended`)
+        .get(`/GetOrders?Status=canceled&Status=approved&Status=attended`)
         .then((response) => {
           const orderData = response.data.existedOrders;
           setUserlist(orderData);
