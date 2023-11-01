@@ -205,6 +205,10 @@ export default function PendingOrders() {
       console.log(row);
       let canceled = confirm(`Are you sure you want to canceled this Order No: ${row.orderId}?`);
       if (canceled) {
+        const remark = prompt('Please enter your cancellation remark:');
+        for (const product of row.products) {
+          product.remarks = remark;
+        }
         const updatedOrder = await axios.post('/UpdateOrder', row);
         if (updatedOrder) {
           console.log(updatedOrder);
@@ -414,7 +418,7 @@ export default function PendingOrders() {
                   )}
                   {USERLIST.length === 0 && (
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'
@@ -433,7 +437,7 @@ export default function PendingOrders() {
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'

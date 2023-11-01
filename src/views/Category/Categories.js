@@ -455,9 +455,9 @@ export default function Categories() {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            No Products
+                            No Categories
                           </Typography>
-                          <Typography variant="body2">There are currently no Products available.</Typography>
+                          <Typography variant="body2">There are currently no Categories available.</Typography>
                         </Paper>
                       </TableCell>
                     </TableRow>

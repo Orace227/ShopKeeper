@@ -72,7 +72,7 @@ const TABLE_HEAD = [
   { id: 'Category', label: 'Category', alignRight: false },
   { id: 'totalQuantity', label: 'total Quantity in Stock', alignRight: false },
   { id: 'MinQty', label: 'Minimum Limit', alignRight: false },
-  { id: 'action', label: 'Action' }
+  { id: 'action', label: 'Action', alignRight: false }
 ];
 
 export default function Products() {
@@ -595,7 +595,7 @@ export default function Products() {
                   )}
                   {USERLIST.length === 0 && (
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'
@@ -614,7 +614,7 @@ export default function Products() {
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'

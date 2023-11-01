@@ -263,7 +263,7 @@ export default function AttendedOrders() {
                   )}
                   {USERLIST.length === 0 && (
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'
@@ -282,7 +282,7 @@ export default function AttendedOrders() {
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'
