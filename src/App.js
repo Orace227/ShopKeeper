@@ -22,6 +22,7 @@ import CartManager from 'Helpers/CartManager';
 const App = () => {
   const customization = useSelector((state) => state.customization);
   axios.defaults.baseURL = 'http://localhost:4469';
+  axios.defaults.withCredentials = true;
 
   return (
     <StyledEngineProvider injectFirst>

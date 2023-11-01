@@ -12,7 +12,8 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  IconButton
+  IconButton,
+  Checkbox
 } from '@mui/material';
 // components
 import Iconify from '../../components/iconify';
@@ -104,6 +105,21 @@ export default function AttendedOrders() {
   //   setOpen(null);
   // };
 
+  const handleClick = (event, orderId) => {
+    const selectedIndex = selected.indexOf(orderId);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      // If the item is not selected, add it to the selection
+      newSelected = [...selected, orderId];
+    } else if (selectedIndex >= 0) {
+      // If the item is selected, remove it from the selection
+      newSelected = selected.filter((id) => id !== orderId);
+    }
+
+    setSelected(newSelected);
+  };
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -113,7 +129,7 @@ export default function AttendedOrders() {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // If the checkbox is checked, select all items
-      const newSelecteds = USERLIST.map((n) => n.clientId);
+      const newSelecteds = USERLIST.map((n) => n.orderId);
       setSelected(newSelecteds);
     } else {
       // If the checkbox is unchecked, clear the selection
@@ -163,7 +179,7 @@ export default function AttendedOrders() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2} mt={1}>
           <Typography variant="h1" gutterBottom>
-            Confirmed Orders
+            Attended Orders
           </Typography>
         </Stack>
         <Toaster />
@@ -196,6 +212,9 @@ export default function AttendedOrders() {
                       return (
                         <>
                           <TableRow hover key={orderId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                            <TableCell padding="checkbox">
+                              <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, orderId)} />
+                            </TableCell>
                             <TableCell align="left">{orderId}</TableCell>
                             {/* <TableCell align="left">{cartId}</TableCell> */}
                             <TableCell align="left">

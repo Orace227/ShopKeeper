@@ -30,14 +30,14 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
   };
   const addQuantitiesForAllProducts = (products) => {
     products?.forEach((product) => {
-      handleQTYChange(product.id, product.actualQuantity, 100);
+      handleQTYChange(product.productId, product.actualQuantity, 100);
     });
   };
 
   const handleAcceptSpecificOrder = async (product) => {
     try {
       product.Status = 'approved';
-      const productId = product.id;
+      const productId = product.productId;
       const remark = remarksMap[productId] || ''; // Get the remark from remarksMap
       const Qty = QtyMap[productId] || ''; // Get the remark from remarksMap
       // Update the product's remarks field with the retrieved remark
@@ -54,7 +54,7 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
   const handleCancelSpecificOrder = async (product) => {
     try {
       product.Status = 'canceled';
-      const productId = product.id;
+      const productId = product.productId;
       const remark = remarksMap[productId] || ''; // Get the remark from remarksMap
       // const Qty = QtyMap[productId] || '';
       const updatedProduct = { ...product, remarks: remark };
@@ -120,30 +120,30 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
           <tbody>
             {products?.map((product) => {
               // Check if the product's ID is in updatedProducts
-              if (updatedProducts.some((updatedProduct) => updatedProduct.id === product.id)) {
+              if (updatedProducts.some((updatedProduct) => updatedProduct.productId === product.productId)) {
                 return null; // Don't render the product if it's in updatedProducts
               } else if (products?.length == 0) {
                 return;
               }
 
               return (
-                <tr key={product.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{product.id}</td>
+                <tr key={product.productId}>
+                  <td className="px-6 py-4 whitespace-nowrap">{product.productId}</td>
                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
                   <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{product.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{product.productName}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{product.category}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{product.description}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <img src={product.imageUrl} alt={product.title} className="max-w-xs h-[100px]" />
+                    <img src={product.productImgPath} alt={product.title} className="max-w-xs h-[100px]" />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
                       type="text"
-                      value={QtyMap[product.id]}
-                      onChange={(e) => handleQTYChange(product.id, e.target.value, 100)}
+                      value={QtyMap[product.productId]}
+                      onChange={(e) => handleQTYChange(product.productId, e.target.value, 100)}
                       className="w-[200px] px-3 py-4 border rounded"
                       placeholder="Edit Quantity"
                     />
@@ -151,12 +151,12 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
                   <td className="px-6 py-4 whitespace-nowrap">100</td>
                   <td className="px-6 py-4 w-auto">
                     <textarea
-                      value={remarksMap[product.id] || ''}
-                      onChange={(e) => handleRemarksChange(product.id, e.target.value)}
+                      value={remarksMap[product.productId] || ''}
+                      onChange={(e) => handleRemarksChange(product.productId, e.target.value)}
                       className="w-[200px] h-[100px] px-3 py-4 border rounded"
                       placeholder="Add remarks"
                     />
-                    {(remarksMap[product?.id] || '').length < 20 && (
+                    {(remarksMap[product?.productId] || '').length < 20 && (
                       <p className="mt-1 text-xs text-red-500">*Please enter Remark for cancelation</p>
                     )}
                   </td>
@@ -178,7 +178,7 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
                       onClick={() => {
                         handleCancelSpecificOrder(product);
                       }}
-                      disabled={(remarksMap[product?.id] || '').length < 20}
+                      disabled={(remarksMap[product?.productId] || '').length < 20}
                     >
                       <Iconify icon={'eva:close-outline'} />
                     </IconButton>
@@ -187,7 +187,8 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
               );
             })}
             {products?.length > 0 &&
-              products?.filter((product) => !updatedProducts.some((updatedProduct) => updatedProduct.id === product.id)).length === 0 && (
+              products?.filter((product) => !updatedProducts.some((updatedProduct) => updatedProduct.productId === product.productId))
+                .length === 0 && (
                 <tr>
                   <td colSpan="13" className="text-center py-4">
                     <div className="bg-gray-200 p-4 border  border-gray-300 rounded">

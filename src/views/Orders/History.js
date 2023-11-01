@@ -12,7 +12,8 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  IconButton
+  IconButton,
+  Checkbox
 } from '@mui/material';
 // components
 import Iconify from '../../components/iconify';
@@ -110,10 +111,25 @@ export default function History() {
     setOrderBy(property);
   };
 
+  const handleClick = (event, orderId) => {
+    const selectedIndex = selected.indexOf(orderId);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      // If the item is not selected, add it to the selection
+      newSelected = [...selected, orderId];
+    } else if (selectedIndex >= 0) {
+      // If the item is selected, remove it from the selection
+      newSelected = selected.filter((id) => id !== orderId);
+    }
+
+    setSelected(newSelected);
+  };
+
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // If the checkbox is checked, select all items
-      const newSelecteds = USERLIST.map((n) => n.clientId);
+      const newSelecteds = USERLIST.map((n) => n.orderId);
       setSelected(newSelecteds);
     } else {
       // If the checkbox is unchecked, clear the selection
@@ -196,6 +212,9 @@ export default function History() {
                       return (
                         <>
                           <TableRow hover key={orderId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                            <TableCell padding="checkbox">
+                              <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, orderId)} />
+                            </TableCell>
                             <TableCell align="left">{orderId}</TableCell>
                             {/* <TableCell align="left">{cartId}</TableCell> */}
 
