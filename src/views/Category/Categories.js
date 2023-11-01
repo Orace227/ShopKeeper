@@ -86,7 +86,9 @@ export default function Categories() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get('/GetCategory')
+        .get('/GetCategory', {
+          withCredentials: true // Include credentials (cookies) with the request
+        })
         .then((response) => {
           const findCategoryData = response.data.findCategories;
           const allCategory = findCategoryData.map((category) => ({
@@ -250,19 +252,29 @@ export default function Categories() {
         const parts = values?.categoryImgPath.split('/');
         const filename = parts[parts.length - 1];
         console.log(filename);
-        const DeletedBannerImg = await axios.post('/delete-category-img', { filename });
+        const DeletedBannerImg = await axios.post(
+          '/delete-category-img',
+          { filename },
+          {
+            withCredentials: true // Include credentials (cookies) with the request
+          }
+        );
         if (DeletedBannerImg) {
           console.log(DeletedBannerImg);
           const formData = new FormData();
           formData.append('categoryImg', values.categoryImg);
           console.log(values.categoryImg);
           // console.log({ formData });
-          const uploadedImg = await axios.post('/upload-category-img', formData);
+          const uploadedImg = await axios.post('/upload-category-img', formData, {
+            withCredentials: true // Include credentials (cookies) with the request
+          });
           console.log(uploadedImg);
           values.categoryImgPath = uploadedImg.data.path;
           console.log('main value', values);
           if (uploadedImg) {
-            const updatedPackage = await axios.post('/UpdateCategory', values);
+            const updatedPackage = await axios.post('/UpdateCategory', values, {
+              withCredentials: true // Include credentials (cookies) with the request
+            });
             console.log(updatedPackage);
             // console.log(editedUserData);
             if (updatedPackage) {
@@ -274,7 +286,9 @@ export default function Categories() {
         }
       } else {
         console.log('values', values);
-        const updatedCategory = await axios.post('/UpdateCategory', values);
+        const updatedCategory = await axios.post('/UpdateCategory', values, {
+          withCredentials: true // Include credentials (cookies) with the request
+        });
         if (updatedCategory) {
           console.log(updatedCategory);
           toast.success('Category updated successfully!!');

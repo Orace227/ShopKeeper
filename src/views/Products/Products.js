@@ -86,7 +86,9 @@ export default function Products() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get('/GetProducts')
+        .get('/GetProducts', {
+          withCredentials: true // Include credentials (cookies) with the request
+        })
         .then((response) => {
           const findProductsData = response.data.findProducts;
           const allProducts = findProductsData.map((product) => ({

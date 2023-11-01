@@ -1,10 +1,12 @@
 import React from 'react';
-import { Container, Typography, TextField, Button, Grid, Select, FormControl, MenuItem, InputLabel, FormLabel } from '@mui/material';
+import { Container, Typography, TextField, Button, Grid, FormLabel, Select, MenuItem } from '@mui/material';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 const validationSchema = Yup.object().shape({
   products: Yup.array().of(
@@ -41,13 +43,18 @@ const initialValues = {
 
 const CreateProducts = () => {
   const Navigate = useNavigate();
+  const [Category, setCategory] = useState([]);
+  // const [selectedClients, setSelectedClients] = useState(initialValues.products.map(() => null));
+
   const handleSubmit = async (values) => {
     try {
       console.log('All Products:', values);
       const uploadPromises = values.products.map(async (element) => {
         const formData = new FormData();
         formData.append('productImg', element.productImg);
-        const uploadedImgPath = await axios.post('/upload-product-img', formData);
+        const uploadedImgPath = await axios.post('/upload-product-img', formData, {
+          withCredentials: true // Include credentials (cookies) with the request
+        });
         if (uploadedImgPath) {
           console.log(uploadedImgPath.data);
           element.productImgPath = uploadedImgPath.data.path;
@@ -58,16 +65,44 @@ const CreateProducts = () => {
 
       await Promise.all(uploadPromises);
       console.log(values.products);
-      const createProducts = await axios.post('/createProducts', values.products);
+      const createProducts = await axios.post('/createProducts', values.products, {
+        withCredentials: true // Include credentials (cookies) with the request
+      });
       if (createProducts) {
         console.log(createProducts.data);
-        toast.success('Products Created Successfully!!');  
+        toast.success('Products Created Successfully!!');
         Navigate('/Products');
       }
     } catch (err) {
       console.log(err);
     }
   };
+
+  const fetchCategory = async () => {
+    try {
+      const response = await axios.get('/GetCategory', {
+        withCredentials: true // Include credentials (cookies) with the request
+      });
+      const allFindCategories = response.data.findCategories;
+
+      // Map the client data to an array of client objects
+      const clientObjects = allFindCategories.map((item) => ({
+        categoryId: item.categoryId,
+        name: `${item.categoryName}`
+      }));
+
+      // Set the clients state with the array of client objects
+      setCategory(clientObjects);
+
+      console.log('clientObjects', clientObjects);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
 
   // const handleMobileKeyPress = (event) => {
   //   if (!/^\d+$/.test(event.key)) {
@@ -126,22 +161,15 @@ const CreateProducts = () => {
                           />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <FormControl fullWidth variant="outlined" margin="normal">
-                            <InputLabel htmlFor={`products[${index}].category`}>Select Category</InputLabel>
-                            <Field
-                              label="Select Category"
-                              name={`products[${index}].category`}
-                              as={Select}
-                              inputProps={{
-                                id: `products[${index}].category`,
-                                shrink: true
-                              }}
-                            >
-                              <MenuItem value="Option1">Option 1</MenuItem>
-                              <MenuItem value="Option2">Option 2</MenuItem>
-                              <MenuItem value="Option3">Option 3</MenuItem>
-                            </Field>
-                          </FormControl>
+                          {/* <InputLabel htmlFor={`products[${index}].category`}>Category</InputLabel> */}
+                          <Field className="mt-4" name={`products[${index}].category`} as={Select} variant="outlined" fullWidth>
+                            <MenuItem value="">Select Category</MenuItem>
+                            {Category.map((option) => (
+                              <MenuItem key={option.categoryId} value={option.name}>
+                                {option.name}
+                              </MenuItem>
+                            ))}
+                          </Field>
                           <ErrorMessage name={`products[${index}].category`} component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
