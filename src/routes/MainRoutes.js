@@ -12,6 +12,8 @@ import CreateProducts from 'views/Products/CreateProducts';
 import CreateCategory from 'views/Category/CreateCategory';
 import Products from 'views/Products/Products';
 import Categories from 'views/Category/Categories';
+import Survey from 'views/SurveyForm/Survey';
+import SurveyOrderView from 'views/SurveyForm/SurveyOrderView';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 // const Customers = Loadable(lazy(() => import('views/Products/Customers')));
@@ -65,7 +67,14 @@ const MainRoutes = {
       path: '/Categories',
       element: <Categories />
     },
-
+    {
+      path: '/SurveyHistory',
+      element: <Survey />
+    },
+    {
+      path: '/SurveyOverView/:surveyId',
+      element: <SurveyOrderView />
+    },
     {
       path: '*',
 
