@@ -86,7 +86,9 @@ export default function Categories() {
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get('/GetCategory')
+        .get('/GetCategory', {
+          withCredentials: true // Include credentials (cookies) with the request
+        })
         .then((response) => {
           const findCategoryData = response.data.findCategories;
           const allCategory = findCategoryData.map((category) => ({
@@ -197,15 +199,16 @@ export default function Categories() {
     try {
       const user = USERLIST.find((user) => user.categoryId == row.categoryId);
       console.log(user);
-      const isDelete = window.confirm('Are you sure you want to delete customer having name ' + user.productName);
+      const isDelete = window.confirm('Are you sure you want to delete Category having CategoryId ' + user.categoryId);
       if (isDelete) {
-        const deletedCustomer = await axios.post('/deleteClient', { categoryId: user.categoryId });
+        const deletedCustomer = await axios.post('/DeleteCategory', { categoryId: user.categoryId });
         if (deletedCustomer) {
-          toast.success('Customer deleted successfully!!');
+          toast.success('Category deleted successfully!!');
         }
       }
       window.location.reload();
     } catch (err) {
+      toast.error('Some error occurred when deleting Category  successfully!!');
       console.log({ error: err });
     }
   };
@@ -250,19 +253,29 @@ export default function Categories() {
         const parts = values?.categoryImgPath.split('/');
         const filename = parts[parts.length - 1];
         console.log(filename);
-        const DeletedBannerImg = await axios.post('/delete-category-img', { filename });
+        const DeletedBannerImg = await axios.post(
+          '/delete-category-img',
+          { filename },
+          {
+            withCredentials: true // Include credentials (cookies) with the request
+          }
+        );
         if (DeletedBannerImg) {
           console.log(DeletedBannerImg);
           const formData = new FormData();
           formData.append('categoryImg', values.categoryImg);
           console.log(values.categoryImg);
           // console.log({ formData });
-          const uploadedImg = await axios.post('/upload-category-img', formData);
+          const uploadedImg = await axios.post('/upload-category-img', formData, {
+            withCredentials: true // Include credentials (cookies) with the request
+          });
           console.log(uploadedImg);
           values.categoryImgPath = uploadedImg.data.path;
           console.log('main value', values);
           if (uploadedImg) {
-            const updatedPackage = await axios.post('/UpdateCategory', values);
+            const updatedPackage = await axios.post('/UpdateCategory', values, {
+              withCredentials: true // Include credentials (cookies) with the request
+            });
             console.log(updatedPackage);
             // console.log(editedUserData);
             if (updatedPackage) {
@@ -274,7 +287,9 @@ export default function Categories() {
         }
       } else {
         console.log('values', values);
-        const updatedCategory = await axios.post('/UpdateCategory', values);
+        const updatedCategory = await axios.post('/UpdateCategory', values, {
+          withCredentials: true // Include credentials (cookies) with the request
+        });
         if (updatedCategory) {
           console.log(updatedCategory);
           toast.success('Category updated successfully!!');
@@ -440,9 +455,9 @@ export default function Categories() {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            No Products
+                            No Categories
                           </Typography>
-                          <Typography variant="body2">There are currently no Products available.</Typography>
+                          <Typography variant="body2">There are currently no Categories available.</Typography>
                         </Paper>
                       </TableCell>
                     </TableRow>

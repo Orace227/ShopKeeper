@@ -8,7 +8,7 @@ import NotFound from '404Notfound/404page';
 import PendingOrders from 'views/Orders/PendingOrders';
 import OrderView from 'views/Orders/OrderView';
 import AttendedOrders from 'views/Orders/AttendedOrders';
-import CreateProducts from 'views/Orders/CreateProducts';
+import CreateProducts from 'views/Products/CreateProducts';
 import CreateCategory from 'views/Category/CreateCategory';
 import Products from 'views/Products/Products';
 import Categories from 'views/Category/Categories';

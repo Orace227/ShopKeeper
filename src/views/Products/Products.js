@@ -20,7 +20,10 @@ import {
   DialogContent,
   // DialogActions,
   TextField,
-  Grid
+  Grid,
+  Select,
+  MenuItem,
+  FormLabel
 } from '@mui/material';
 // components
 import Iconify from '../../components/iconify';
@@ -28,7 +31,7 @@ import Scrollbar from '../../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 import { useEffect } from 'react';
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
+import { Formik, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
@@ -68,7 +71,8 @@ const TABLE_HEAD = [
   { id: 'Description', label: 'Description', alignRight: false },
   { id: 'Category', label: 'Category', alignRight: false },
   { id: 'totalQuantity', label: 'total Quantity in Stock', alignRight: false },
-  { id: 'action', label: 'Action' }
+  { id: 'MinQty', label: 'Minimum Limit', alignRight: false },
+  { id: 'action', label: 'Action', alignRight: false }
 ];
 
 export default function Products() {
@@ -82,44 +86,99 @@ export default function Products() {
   const [USERLIST, setUserlist] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editedUserData, setEditedUserData] = useState([]);
+  const [Category, setCategory] = useState([]);
+
+  // const fetchCustomers = () => {
+  //   const promise = new Promise((resolve, reject) => {
+  //     axios
+  //       .get('/GetProducts', {
+  //         withCredentials: true // Include credentials (cookies) with the request
+  //       })
+  //       .then((response) => {
+  //         const findProductsData = response.data.findProducts;
+  //         const allProducts = findProductsData.map((product) => ({
+  //           ...product,
+  //           productImgPath: `http://localhost:4469/${product.productImgPath.replace('\\', '/')}`
+  //         }));
+
+  //         // Check if the image exists before setting it
+  //         const promises = allProducts.map(async (product) => {
+  //           try {
+  //             await axios.get(product.productImgPath);
+  //           } catch (error) {
+  //             product.productImgPath = blankImg;
+  //           }
+  //         });
+
+  //         // Wait for all promises to complete
+  //         Promise.all(promises).then(() => {
+  //           setUserlist(allProducts);
+  //           resolve(allProducts);
+  //         });
+  //       })
+  //       .catch((error) => {
+  //         toast.error('Failed to retrieve Products. Please try again later.');
+  //         console.error('Error retrieving Products:', error);
+  //         reject(error);
+  //       });
+  //   });
+
+  //   toast.promise(promise, {
+  //     loading: 'Retrieving Products...',
+  //     success: 'Products retrieved successfully!!',
+  //     error: 'Failed to retrieve Products!!!'
+  //   });
+  // };
 
   const fetchCustomers = () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get('/GetProducts')
+        .get('/GetProducts', {
+          withCredentials: true // Include credentials (cookies) with the request
+        })
         .then((response) => {
-          const findProductsData = response.data.findProducts;
-          const allProducts = findProductsData.map((product) => ({
-            ...product,
-            productImgPath: `http://localhost:4469/${product.productImgPath.replace('\\', '/')}`
+          const findCategoryData = response.data.findProducts;
+          const allCategory = findCategoryData.map((category) => ({
+            ...category,
+            productImgPath: `${category.productImgPath.replace('\\', '/')}`
           }));
+          console.log({ allCategory });
 
           // Check if the image exists before setting it
-          const promises = allProducts.map(async (product) => {
+          const promises = allCategory.map(async (category) => {
             try {
-              await axios.get(product.productImgPath);
+              console.log(category.productImgPath);
+
+              const img = await axios.get(category.productImgPath);
+              console.log(img);
+              if (img) {
+                console.log(category.productImgPath);
+                category.productImgPath = `${category.productImgPath.replace('\\', '/')}`;
+              }
+              return img;
             } catch (error) {
-              product.productImgPath = blankImg;
+              category.productImgPath = blankImg;
             }
           });
 
           // Wait for all promises to complete
           Promise.all(promises).then(() => {
-            setUserlist(allProducts);
-            resolve(allProducts);
+            console.log(allCategory);
+            setUserlist(allCategory);
+            resolve(allCategory);
           });
         })
         .catch((error) => {
-          toast.error('Failed to retrieve Products. Please try again later.');
-          console.error('Error retrieving Products:', error);
+          toast.error('Failed to retrieve Categories. Please try again later.');
+          console.error('Error retrieving Categories:', error);
           reject(error);
         });
     });
 
     toast.promise(promise, {
-      loading: 'Retrieving Products...',
-      success: 'Products retrieved successfully!!',
-      error: 'Failed to retrieve Products!!!'
+      loading: 'Retrieving Categories...',
+      success: 'Categories retrieved successfully!!',
+      error: 'Failed to retrieve Categories!!!'
     });
   };
 
@@ -186,70 +245,139 @@ export default function Products() {
     try {
       const user = USERLIST.find((user) => user.productId == row.productId);
       console.log(user);
-      const isDelete = window.confirm('Are you sure you want to delete customer having name ' + user.productName);
+      const isDelete = window.confirm('Are you sure you want to delete Product having name ' + user.productName);
       if (isDelete) {
-        const deletedCustomer = await axios.post('/deleteClient', { productId: user.productId });
+        const deletedCustomer = await axios.post('/DeleteProducts', { productId: user.productId });
         if (deletedCustomer) {
-          toast.success('Customer deleted successfully!!');
+          toast.success('Product deleted successfully!!');
+          window.location.reload();
         }
       }
-      window.location.reload();
     } catch (err) {
+      toast.error('Product is not deleted successfully!!!');
       console.log({ error: err });
     }
   };
+
+  const validationSchema = Yup.object().shape({
+    products: Yup.array().of(
+      Yup.object().shape({
+        productName: Yup.string().required('Product Name is Required'),
+        description: Yup.string().required('Product Description is Required'),
+        category: Yup.string().required('Category is required'),
+        quantityInStock: Yup.number().required('Product Quantity is required').positive().integer(),
+        productImgName: Yup.string().required('Product Image Name is required')
+      })
+    )
+  });
+
   // Function to close the edit modal
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
   };
 
-  const handleSaveChanges = () => {
-    handleCloseEditModal();
-  };
+  // const handleSaveChanges = () => {
+  //   handleCloseEditModal();
+  // };
   // const handleMobileKeyPress = (e) => {
   //   // Prevent non-numeric characters
   //   if (!/^\d+$/.test(e.key)) {
   //     e.preventDefault();
   //   }
   // };
-  const validationSchema = Yup.object().shape({
-    firstName: Yup.string().required('First Name is Required'),
-    lastName: Yup.string().required('Last Name is Required'),
-    email: Yup.string().email('Invalid email address').required('Email is Required'),
-    mobile: Yup.string().required('Mobile is Required'),
-    // dateOfBirth: Yup.date().required('Date of Birth is required'),
-    passportNumber: Yup.string().required('Passport Number is Required'),
-    // passportExpiryDate: Yup.date().required('Passport Expiry Date is required'),
-    frequentFlyerNumbers: Yup.array().of(
-      Yup.object().shape({
-        type: Yup.string().required('Frequent Flyer Type is Required'),
-        number: Yup.string().required('Frequent Flyer Number is Required')
-      })
-    ),
-    hotelLoyaltyNumbers: Yup.array().of(
-      Yup.object().shape({
-        type: Yup.string().required('Hotel Loyalty Type is Required'),
-        number: Yup.string().required('Hotel Loyalty Number is Required')
-      })
-    ),
-    address: Yup.string().required('Address is Required'),
-    city: Yup.string().required('City is Required'),
-    country: Yup.string().required('Country is Required'),
-    postalCode: Yup.string().required('Postal Code is Required'),
-    foodPreferences: Yup.string(),
-    companyName: Yup.string(),
-    companyGSTNumber: Yup.string(),
-    companyGSTEmail: Yup.string().email()
-  });
-  const handleSubmit = async (values) => {
-    // console.log(editedUserData);
-    console.log('values', values);
-    const updatedCustomer = await axios.post('/updateClient', values);
-    console.log(updatedCustomer);
-    toast.success('Customer updated successfully!!');
-    handleSaveChanges();
-    window.location.reload();
+
+  // const handleSubmit = async (values) => {
+  //   // console.log(editedUserData);
+  //   console.log('values', values);
+  //   const updatedCustomer = await axios.post('/updateClient', values);
+  //   console.log(updatedCustomer);
+  //   toast.success('Customer updated successfully!!');
+  //   handleSaveChanges();
+  //   window.location.reload();
+  // };
+
+  const fetchCategory = async () => {
+    try {
+      const response = await axios.get('/GetCategory', {
+        withCredentials: true // Include credentials (cookies) with the request
+      });
+      const allFindCategories = response.data.findCategories;
+
+      // Map the client data to an array of client objects
+      const clientObjects = allFindCategories.map((item) => ({
+        categoryId: item.categoryId,
+        name: `${item.categoryName}`
+      }));
+
+      // Set the clients state with the array of client objects
+      setCategory(clientObjects);
+
+      console.log('clientObjects', clientObjects);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
   };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
+  const handleSubmit = async (values) => {
+    try {
+      console.log({ values });
+      if (values?.productImg) {
+        console.log('workng');
+        const parts = values?.productImgPath.split('/');
+        const filename = parts[parts.length - 1];
+        console.log(filename);
+        const DeletedBannerImg = await axios.post(
+          '/delete-product-img',
+          { filename },
+          {
+            withCredentials: true // Include credentials (cookies) with the request
+          }
+        );
+        if (DeletedBannerImg) {
+          console.log(DeletedBannerImg);
+          const formData = new FormData();
+          formData.append('productImg', values.productImg);
+          console.log(values.productImg);
+          // console.log({ formData });
+          const uploadedImg = await axios.post('/upload-product-img', formData, {
+            withCredentials: true // Include credentials (cookies) with the request
+          });
+          console.log(uploadedImg);
+          values.productImgPath = uploadedImg.data.path;
+          console.log('main value', values);
+          if (uploadedImg) {
+            const updatedPackage = await axios.post('/UpdateProducts', values, {
+              withCredentials: true // Include credentials (cookies) with the request
+            });
+            console.log(updatedPackage);
+            // console.log(editedUserData);
+            if (updatedPackage) {
+              toast.success('Product Updated Successfully!!');
+
+              window.location.reload();
+            }
+          }
+        }
+      } else {
+        console.log('values', values);
+        const updatedCategory = await axios.post('/UpdateProducts', values, {
+          withCredentials: true // Include credentials (cookies) with the request
+        });
+        if (updatedCategory) {
+          console.log(updatedCategory);
+          toast.success('Product updated successfully!!');
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error('Error updating Product:', error);
+    }
+  };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
@@ -270,417 +398,123 @@ export default function Products() {
         <Toaster />
         {openEditModal && (
           <Dialog open={openEditModal} onClose={handleCloseEditModal} maxWidth="lg" fullWidth>
-            <DialogTitle>Edit Customer</DialogTitle>
+            <DialogTitle>Edit Product</DialogTitle>
             <DialogContent>
               <Container>
                 <Formik initialValues={editedUserData} validationSchema={validationSchema} onSubmit={handleSubmit}>
-                  {({ values }) => (
+                  {({ values, setFieldValue, handleChange }) => (
                     <Form>
+                      <Typography variant="h4" className="mt-2" gutterBottom>
+                        Product
+                      </Typography>
                       <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
-                          <Field
-                            name="firstName"
-                            as={TextField}
-                            label="First Name"
-                            // value={editedUserData.firstName || ' '}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, firstName: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
+                          <TextField
+                            name="productName"
+                            label="Product Name"
                             fullWidth
                             margin="normal"
                             variant="outlined"
+                            value={values.productName}
+                            onChange={handleChange}
                           />
-                          <ErrorMessage name="firstName" component="div" className="error" style={{ color: 'red' }} />
+                          <ErrorMessage name="productName" component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Field
-                            name="lastName"
-                            as={TextField}
-                            label="Last Name"
-                            // value={editedUserData.lastName || ' '}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, lastName: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
+                          <TextField
+                            name="description"
+                            label="Product Description"
                             fullWidth
                             margin="normal"
                             variant="outlined"
+                            value={values.description}
+                            onChange={handleChange}
                           />
-                          <ErrorMessage name="lastName" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                          <Field
-                            name="email"
-                            as={TextField}
-                            // value={editedUserData.email || ' '}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, email: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            label="Email"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                          <ErrorMessage name="email" component="div" className="error" style={{ color: 'red' }} />
+                          <ErrorMessage name="description" component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Field
-                            name="mobile"
-                            as={TextField}
-                            label="Mobile"
-                            type="text"
-                            // value={editedUserData.mobile || ' '}
-                            // onChange={(e) => {
-                            //   handleMobileKeyPress(e);
-                            //   const updatedUserData = { ...editedUserData, mobile: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
+                          <Select
+                            name="category"
+                            className="mt-4"
+                            variant="outlined"
+                            fullWidth
+                            value={values.category}
+                            onChange={handleChange}
+                          >
+                            <MenuItem value="">Select Category</MenuItem>
+                            {Category.map((option) => (
+                              <MenuItem key={option.categoryId} value={option.name}>
+                                {option.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          <ErrorMessage name="category" component="div" className="error" style={{ color: 'red' }} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            name="quantityInStock"
+                            label="Product Quantity"
                             fullWidth
                             margin="normal"
                             variant="outlined"
+                            type="number"
                             inputProps={{
                               inputMode: 'numeric',
-                              maxLength: 10 // Add maximum length attribute
+                              min: 1
                             }}
-                            error={editedUserData.mobile && editedUserData.mobile.length !== 10}
-                            helperText={
-                              editedUserData.mobile && editedUserData.mobile.length !== 10
-                                ? 'Mobile number must be exactly 10 characters'
-                                : ''
-                            }
+                            value={values.quantityInStock}
+                            onChange={handleChange}
                           />
-                          <ErrorMessage name="mobile" component="div" className="error" style={{ color: 'red' }} />
+                          <ErrorMessage name="quantityInStock" component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Field
-                            name="dateOfBirth"
-                            as={TextField}
-                            label="Date of Birth"
-                            // value={editedUserData.dateOfBirth}
-                            // onChange = {(e) =>{
-                            //   const updatedUserData = {...editedUserData,dateOfBirth : e.target.value}
-                            //   setEditedUserData(updatedUserData)}}
-                            type="date"
+                          <TextField
+                            name={`minQty`}
+                            label="Minimum Quantity "
                             fullWidth
                             margin="normal"
                             variant="outlined"
-                            InputLabelProps={{
-                              shrink: true
-                            }}
-                          />
-                          <ErrorMessage name="dateOfBirth" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <Field
-                            name="passportNumber"
-                            as={TextField}
-                            // value={editedUserData.passportNumber || ' '}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, passportNumber: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            label="Passport Number"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                          <ErrorMessage name="passportNumber" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <Field
-                            name="passportExpiryDate"
-                            as={TextField}
-                            // value={editedUserData.passportExpiryDate}
-                            // onChange = {(e) =>{
-                            //   const updatedUserData = {...editedUserData,passportExpiryDate : e.target.value}
-                            //   setEditedUserData(updatedUserData)}}
-                            label="Passport Expiry Date"
-                            type="date"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                            InputLabelProps={{
-                              shrink: true
-                            }}
-                          />
-                          <ErrorMessage name="passportExpiryDate" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Typography variant="h5" gutterBottom>
-                            Frequent Flyer Numbers
-                          </Typography>
-                          <FieldArray name="frequentFlyerNumbers">
-                            {({ push, remove }) => (
-                              <div>
-                                {values.frequentFlyerNumbers.map((ffNumber, index) => (
-                                  <div key={index}>
-                                    <Field
-                                      name={`frequentFlyerNumbers[${index}].type`}
-                                      as={TextField}
-                                      label="Frequent Flyer Type"
-                                      // onChange={(e) => {
-                                      //   const updatedUserData = { ...editedUserData };
-                                      //   const frequentFlyerNumbers = [...updatedUserData.frequentFlyerNumbers];
-                                      //   frequentFlyerNumbers[index].type = e.target.value;
-                                      //   updatedUserData.frequentFlyerNumbers = frequentFlyerNumbers;
-                                      //   setEditedUserData(updatedUserData);
-                                      // }}
-                                      fullWidth
-                                      margin="normal"
-                                      variant="outlined"
-                                    />
-                                    <ErrorMessage
-                                      name={`frequentFlyerNumbers[${index}].type`}
-                                      component="div"
-                                      className="error"
-                                      style={{ color: 'red' }}
-                                    />
-                                    <Field
-                                      name={`frequentFlyerNumbers[${index}].number`}
-                                      as={TextField}
-                                      label="Frequent Flyer Number"
-                                      // onChange={(e) => {
-                                      //   const updatedUserData = { ...editedUserData };
-                                      //   const frequentFlyerNumbers = [...updatedUserData.frequentFlyerNumbers];
-                                      //   frequentFlyerNumbers[index].number = e.target.value;
-                                      //   updatedUserData.frequentFlyerNumbers = frequentFlyerNumbers;
-                                      //   setEditedUserData(updatedUserData);
-                                      // }}
-                                      fullWidth
-                                      margin="normal"
-                                      variant="outlined"
-                                    />
-                                    <ErrorMessage
-                                      name={`frequentFlyerNumbers[${index}].number`}
-                                      component="div"
-                                      className="error"
-                                      style={{ color: 'red' }}
-                                    />
-                                    <Button type="button" variant="outlined" color="secondary" onClick={() => remove(index)}>
-                                      Remove Frequent Flyer
-                                    </Button>
-                                  </div>
-                                ))}
-                                <Button
-                                  type="button"
-                                  variant="outlined"
-                                  style={{ marginTop: '10px' }}
-                                  onClick={() => push({ type: '', number: '' })}
-                                >
-                                  Add Frequent Flyer
-                                </Button>
-                              </div>
-                            )}
-                          </FieldArray>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Typography variant="h5" gutterBottom>
-                            Hotel Loyalty Numbers
-                          </Typography>
-                          <FieldArray name="hotelLoyaltyNumbers">
-                            {({ push, remove }) => (
-                              <>
-                                <div>
-                                  {values.hotelLoyaltyNumbers.map((hlNumber, index) => (
-                                    <div key={index}>
-                                      <Field
-                                        name={`hotelLoyaltyNumbers[${index}].type`}
-                                        as={TextField}
-                                        label="Hotel Loyalty Type"
-                                        // value={editedUserData.hotelLoyaltyNumbers[index].type || ''}
-                                        // onChange={(e) => {
-                                        //   const updatedUserData = { ...editedUserData };
-                                        //   const hotelLoyaltyNumbers = [...updatedUserData.hotelLoyaltyNumbers];
-                                        //   hotelLoyaltyNumbers[index].type = e.target.value;
-                                        //   updatedUserData.hotelLoyaltyNumbers = hotelLoyaltyNumbers;
-                                        //   setEditedUserData(updatedUserData);
-                                        // }}
-                                        fullWidth
-                                        margin="normal"
-                                        variant="outlined"
-                                      />
-                                      <ErrorMessage
-                                        name={`hotelLoyaltyNumbers[${index}].type`}
-                                        component="div"
-                                        className="error"
-                                        style={{ color: 'red' }}
-                                      />
-                                      <Field
-                                        name={`hotelLoyaltyNumbers[${index}].number`}
-                                        as={TextField}
-                                        label="Hotel Loyalty Number"
-                                        // value={values.hotelLoyaltyNumbers[index].number || ''}
-                                        // onChange={(e) => {
-                                        //   const updatedUserData = { ...editedUserData };
-                                        //   const hotelLoyaltyNumbers = [...updatedUserData.hotelLoyaltyNumbers];
-                                        //   hotelLoyaltyNumbers[index].number = e.target.value;
-                                        //   updatedUserData.hotelLoyaltyNumbers = hotelLoyaltyNumbers;
-                                        //   setEditedUserData(updatedUserData);
-                                        // }}
-                                        fullWidth
-                                        margin="normal"
-                                        variant="outlined"
-                                      />
-                                      <ErrorMessage
-                                        name={`hotelLoyaltyNumbers[${index}].number`}
-                                        component="div"
-                                        className="error"
-                                        style={{ color: 'red' }}
-                                      />
-                                      <Button type="button" variant="outlined" color="secondary" onClick={() => remove(index)}>
-                                        Remove Hotel Loyalty
-                                      </Button>
-                                    </div>
-                                  ))}
-                                  <Button
-                                    type="button"
-                                    variant="outlined"
-                                    style={{ marginTop: '10px' }}
-                                    onClick={() => push({ type: '', number: '' })}
-                                  >
-                                    Add Hotel Loyalty
-                                  </Button>
-                                </div>
-                              </>
-                            )}
-                          </FieldArray>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Field
-                            name="address"
-                            // value={editedUserData.address || ' '}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, address: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            as={TextField}
-                            label="Address"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                          <ErrorMessage name="address" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Field
-                            name="city"
-                            as={TextField}
-                            // value={editedUserData.city || ' '}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, city: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            label="City"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                          <ErrorMessage name="city" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Field
-                            name="country"
-                            // value={editedUserData.country || ''}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, country: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            as={TextField}
-                            label="Country"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                          <ErrorMessage name="country" component="div" className="error" style={{ color: 'red' }} />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Field
-                            name="postalCode"
-                            // value={editedUserData.postalCode || ''}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, postalCode: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            as={TextField}
-                            label="Postal Code"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
+                            value={values.minQty}
+                            onChange={handleChange}
+                            type="number"
                             inputProps={{
-                              pattern: '^\\d{6}$', // Regular expression for exactly 6 digits
-                              title: 'Postal code must be exactly 6 digits' // Error message
+                              inputMode: 'numeric'
                             }}
                           />
-                          <ErrorMessage name="postalCode" component="div" className="error" style={{ color: 'red' }} />
+                          <Typography variant="h4" gutterBottom>
+                            <div className="text-red-500 text-sm">{`*Product's minimum amount to get the Notification!`}</div>
+                          </Typography>
                         </Grid>
                         <Grid item xs={12}>
-                          <Field
-                            name="foodPreferences"
-                            as={TextField}
-                            label="Food Preferences"
-                            fullWidth
-                            // value={editedUserData.foodPreferences || ''}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, foodPreferences: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            margin="normal"
-                            variant="outlined"
+                          <input
+                            id="productImgName"
+                            name="productImgName"
+                            type="file"
+                            onChange={(e) => {
+                              setFieldValue('productImg', e.currentTarget.files[0]);
+                              setFieldValue('productImgName', e.currentTarget.files[0].name);
+                            }}
+                            accept="image/*"
+                            style={{ display: 'none' }}
                           />
+                          <FormLabel htmlFor="productImgName">
+                            <Button variant="outlined" component="span" fullWidth style={{ textTransform: 'none' }}>
+                              Upload Product Image
+                            </Button>
+                          </FormLabel>
+                          <div>
+                            {values.productImgName && (
+                              <p style={{ margin: '0', paddingTop: '8px' }}>Selected Image: {values.productImgName}</p>
+                            )}
+                          </div>
+                          <ErrorMessage name="productImgName" component="div" className="error" style={{ color: 'red' }} />
                         </Grid>
                         <Grid item xs={12}>
-                          <Field
-                            name="companyName"
-                            // value={editedUserData.companyName || ''}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, companyName: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            as={TextField}
-                            label="Company Name"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Field
-                            name="companyGSTNumber"
-                            as={TextField}
-                            label="Company GST Number"
-                            // value={editedUserData.companyGSTNumber || ''}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, companyGSTNumber: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Field
-                            name="companyGSTEmail"
-                            as={TextField}
-                            // value={editedUserData.companyGSTEmail || ''}
-                            // onChange={(e) => {
-                            //   const updatedUserData = { ...editedUserData, companyGSTEmail: e.target.value };
-                            //   setEditedUserData(updatedUserData);
-                            // }}
-                            label="Company GST Email"
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                          />
-                          <ErrorMessage name="companyGSTEmail" component="div" className="error" style={{ color: 'red' }} />
+                          <Button type="submit" color="primary" size="large" style={{ marginTop: '1rem' }}>
+                            Submit
+                          </Button>
                         </Grid>
                       </Grid>
-                      <Button type="submit" variant="contained" color="primary" size="large" style={{ marginTop: '1rem' }}>
-                        Save
-                      </Button>
                     </Form>
                   )}
                 </Formik>
@@ -709,8 +543,9 @@ export default function Products() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       // console.log(row);
-                      const { productId, productName, description, category, productImgPath, quantityInStock } = row;
+                      let { productId, productName, description, category, minQty, productImgPath, quantityInStock } = row;
                       const selectedUser = selected.indexOf(productId) !== -1;
+                      productImgPath = `http://localhost:4469/${productImgPath}`;
 
                       return (
                         <>
@@ -721,11 +556,7 @@ export default function Products() {
                             <TableCell align="left">{productId}</TableCell>
 
                             <TableCell align="left">
-                              <Typography noWrap>
-                                <Link to={`/GetCustomer/${productId}`} style={{ textDecoration: 'none', color: 'black' }}>
-                                  {productName}
-                                </Link>
-                              </Typography>
+                              <Typography noWrap>{productName}</Typography>
                             </TableCell>
                             <TableCell align="left">
                               <img className="w-[130px] " src={productImgPath || blankImg} alt="img" />
@@ -736,6 +567,7 @@ export default function Products() {
                             <TableCell align="left">{category}</TableCell>
 
                             <TableCell align="left">{quantityInStock}</TableCell>
+                            <TableCell align="left">{minQty}</TableCell>
 
                             <TableCell align="left">
                               <IconButton size="large" color="inherit" onClick={() => handleOpenEditModal(row)}>
@@ -763,7 +595,7 @@ export default function Products() {
                   )}
                   {USERLIST.length === 0 && (
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'
@@ -782,7 +614,7 @@ export default function Products() {
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
                         <Paper
                           sx={{
                             textAlign: 'center'
