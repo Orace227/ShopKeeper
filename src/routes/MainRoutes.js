@@ -12,14 +12,24 @@ import CreateProducts from 'views/Products/CreateProducts';
 import CreateCategory from 'views/Category/CreateCategory';
 import Products from 'views/Products/Products';
 import Categories from 'views/Category/Categories';
+import Cookies from 'js-cookie';
+import { Navigate } from 'react-router';
 import Survey from 'views/SurveyForm/Survey';
 import SurveyOrderView from 'views/SurveyForm/SurveyOrderView';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 // const Customers = Loadable(lazy(() => import('views/Products/Customers')));
 
-// sample page routing
+const auth = Cookies.get('Authtoken');
 
+// Define a function to render DashboardDefault or a redirect
+function renderDashboardRoute() {
+  if (auth) {
+    return <DashboardDefault />;
+  } else {
+    return <Navigate to="/login" />;
+  }
+}
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -28,11 +38,11 @@ const MainRoutes = {
   children: [
     {
       path: '/',
-      element: <DashboardDefault />
+      element: renderDashboardRoute()
     },
     {
       path: '/dashboard',
-      element: <DashboardDefault />
+      element: renderDashboardRoute()
     },
     {
       path: '/OrderHistory',
