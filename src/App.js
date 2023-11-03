@@ -5,6 +5,7 @@ import { CssBaseline, StyledEngineProvider } from '@mui/material';
 // import index from 'index.css';
 import { Route } from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
+import Cookies from 'js-cookie';
 // routing  
 import Routes from 'routes';
 
@@ -17,27 +18,9 @@ import NavigationScroll from './layout/NavigationScroll';
 import 'tailwindcss/tailwind.css';
 // import { CartProvider } from 'hooks/Cart/CartOrders';
 import FirebaseRegister from 'views/pages/authentication/auth-forms/AuthRegister';
-import CartManager from 'Helpers/CartManager';
+// import CartManager from 'Helpers/CartManager';
 
 // ==============================|| APP ||============================== //
-// Define a function to get a cookie by its name
-function getCookie(name) {
-  const cookieName = name + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const cookieArray = decodedCookie.split(';');
-
-  for (let i = 0; i < cookieArray.length; i++) {
-    let cookie = cookieArray[i];
-    while (cookie.charAt(0) === ' ') {
-      cookie = cookie.substring(1);
-    }
-    if (cookie.indexOf(cookieName) === 0) {
-      return cookie.substring(cookieName.length, cookie.length);
-    }
-  }
-  return null;
-}
-
 const App = () => {
   const customization = useSelector((state) => state.customization);
   axios.defaults.baseURL = 'http://localhost:4469';
@@ -57,25 +40,17 @@ const App = () => {
       return Promise.reject(error);
     }
   );
-  
-  axios.interceptors.request.use(
-    (config) => {
-      const token = getCookie("Authtoken"); 
-      if (token) {
-        navigate('/dashboard');
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
+  const auth = Cookies.get('Authtoken');
+
+  if (auth && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
+    navigate('/dashboard'); 
+  }
 
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={themes(customization)}>
         <CssBaseline />
-        <CartManager>
+        {/* <CartManager> */}
           <NavigationScroll>
             {/* <CartProvider> */}
             <Routes>
@@ -84,7 +59,7 @@ const App = () => {
             </Routes>
             {/* </CartProvider>/ */}
           </NavigationScroll>
-        </CartManager>
+        {/* </CartManager> */}
       </ThemeProvider>
     </StyledEngineProvider>
   );
