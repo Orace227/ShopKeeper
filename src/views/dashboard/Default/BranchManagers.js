@@ -155,25 +155,57 @@ export default function BranchManagers() {
     setFilterName(event.target.value);
   };
 
-  const handleAcceptEmployee = async (row) => {
+  const downloadPdf = async (pdfUrl, fileName) => {
     try {
-      const user = USERLIST.find((user) => user.empId == row.empId);
-      console.log(user);
-      const isDelete = window.confirm('Are you sure you want to approve request of Employee having name ' + user.username);
-      if (isDelete) {
-        user.isConfirmed = 'approved';
-        const deletedCustomer = await axios.post(`/UpdateEmployee`, user, {
-          withCredentials: true // Include credentials (cookies) with the request
-        });
-        if (deletedCustomer) {
-          toast.success('Employee request approved successfully!!');
-          window.location.reload();
-        }
+      console.log(pdfUrl);
+      const response = await fetch(pdfUrl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch PDF');
       }
-    } catch (err) {
-      toast.error('An error occurs during the employee request approval process!!');
 
-      console.log({ error: err });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      return 'PDF downloaded successfully';
+    } catch (error) {
+      throw new Error(`Error downloading PDF: ${error}`);
+    }
+  };
+
+  const handleDownloadReport = async (row) => {
+    const user = USERLIST.find((user) => user.empId == row.empId);
+    console.log(user);
+    // const isDelete = window.confirm('Are you sure you want to approve request of Employee having name ' + user.username);
+    // if (isDelete) {
+    // user.isConfirmed = 'approved';
+    const pdfUrl = `http://localhost:7000/generate-pdf-branch-manager?empId=${row.empId}`;
+    console.log(row);
+    const fileName = `${row.packageName}.pdf`;
+
+    // Show a "pending" toast message
+    const pendingToastId = toast('Downloading PDF...', {
+      autoClose: false // Keep it open until the download is complete
+    });
+
+    try {
+      const result = await downloadPdf(pdfUrl, fileName);
+      console.log(result);
+      // Hide the "pending" toast when the download is complete
+      toast.dismiss(pendingToastId);
+      // Show a "success" toast
+      toast.success('PDF Downloaded Successfully');
+    } catch (error) {
+      // Hide the "pending" toast in case of an error
+      toast.dismiss(pendingToastId);
+      // Show an "error" toast
+      toast.error(`Error downloading PDF: ${error.message}`);
+      console.error(error);
     }
   };
 
@@ -238,7 +270,7 @@ export default function BranchManagers() {
                                 color="inherit"
                                 className="bg-blue-300 hover:bg-blue-500"
                                 onClick={() => {
-                                  handleAcceptEmployee(row);
+                                  handleDownloadReport(row);
                                 }}
                               >
                                 Download Report
