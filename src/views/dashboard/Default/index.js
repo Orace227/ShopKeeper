@@ -15,7 +15,8 @@ import TotalCategoryCard from './TotalCategoryCard';
 import ShowSurveyForm from './ShowSurveyForm';
 // import TotalPendingReq from './TotalPendingReq';
 import TotalApprovedReq from './TotalApprovedReq';
-import Employees from './Employees';
+// import Employees from './BranchManagers';
+import BranchManagers from './BranchManagers';
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -113,7 +114,7 @@ const Dashboard = () => {
               </Grid>
             </Grid>
             <Grid item xs={12} md={9}>
-              <Employees isLoading={isLoading} />
+              <BranchManagers isLoading={isLoading} />
             </Grid>
           </Grid>
         </Grid>

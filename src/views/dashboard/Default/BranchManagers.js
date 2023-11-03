@@ -62,7 +62,7 @@ const TABLE_HEAD = [
   { id: 'action', label: 'Action', alignRight: false }
 ];
 
-export default function Employees() {
+export default function BranchManagers() {
   // const [open, setOpen] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
