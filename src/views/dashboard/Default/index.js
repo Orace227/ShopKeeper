@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
 // project imports
-import PopularCard from './PopularCard';
-import TotalGrowthBarChart from './TotalGrowthBarChart';
 import { gridSpacing } from 'store/constant';
 // import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +12,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import TotalPendingCard from './TotalPendingCard';
 import TotalProductCard from './TotalProductCard';
 import TotalCategoryCard from './TotalCategoryCard';
+import ShowSurveyForm from './ShowSurveyForm';
+// import TotalPendingReq from './TotalPendingReq';
+import TotalApprovedReq from './TotalApprovedReq';
+import Employees from './Employees';
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -83,25 +85,35 @@ const Dashboard = () => {
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
           <Grid container spacing={gridSpacing}>
-            <Grid item lg={4} md={6} sm={6} xs={12}>
+            <Grid item lg={3} md={6} sm={6} xs={12}>
               <TotalPendingCard isLoading={isLoading} />
             </Grid>
 
-            <Grid item lg={4} md={6} sm={6} xs={12}>
+            <Grid item lg={3} md={6} sm={6} xs={12}>
               <TotalProductCard isLoading={isLoading} />
             </Grid>
-            <Grid item lg={4} md={6} sm={6} xs={12}>
+            <Grid item lg={3} md={6} sm={6} xs={12}>
               <TotalCategoryCard isLoading={isLoading} />
+            </Grid>
+            <Grid item lg={3} md={6} sm={6} xs={12}>
+              <ShowSurveyForm isLoading={isLoading} />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12}>
           <Grid container spacing={gridSpacing}>
-            <Grid item xs={12} md={8}>
-              <TotalGrowthBarChart isLoading={isLoading} />
+            <Grid item xs={12} md={3} lg={3}>
+              <Grid container spacing={gridSpacing}>
+                {/* <Grid item md={12} sm={6} xs={12}>
+                  <TotalPendingReq isLoading={isLoading} />
+                </Grid> */}
+                <Grid item md={12} sm={6} xs={12}>
+                  <TotalApprovedReq isLoading={isLoading} />
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={4}>
-              <PopularCard isLoading={isLoading} />
+            <Grid item xs={12} md={9}>
+              <Employees isLoading={isLoading} />
             </Grid>
           </Grid>
         </Grid>

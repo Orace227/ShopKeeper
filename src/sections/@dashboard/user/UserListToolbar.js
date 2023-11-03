@@ -38,7 +38,7 @@ UserListToolbar.propTypes = {
   onFilterName: PropTypes.func
 };
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName, placeholder }) {
+export default function UserListToolbar({ numSelected, filterName, onFilterName, placeholder, name }) {
   return (
     <StyledRoot
       sx={{
@@ -63,8 +63,8 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
               ? 'Products...'
               : placeholder === 'Category'
               ? 'Categories...'
-              : placeholder === 'Inquiries'
-              ? 'Inquiries...'
+              : placeholder === 'Employee'
+              ? 'Branch Managers...'
               : placeholder === 'FamilyMember'
               ? 'Family Members...'
               : 'Bookings...'
@@ -78,6 +78,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
           }
         />
       )}
+      <h1 className="text-3xl">{name}</h1>
     </StyledRoot>
   );
 }

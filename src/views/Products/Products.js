@@ -546,6 +546,7 @@ export default function Products() {
                       let { productId, productName, description, category, minQty, productImgPath, quantityInStock } = row;
                       const selectedUser = selected.indexOf(productId) !== -1;
                       productImgPath = `http://localhost:4469/${productImgPath}`;
+                      
 
                       return (
                         <>

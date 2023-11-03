@@ -7,6 +7,8 @@ import { Route } from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
 // routing  
+import { useNavigate } from 'react-router-dom';
+// routing
 import Routes from 'routes';
 
 // defaultTheme
@@ -25,7 +27,7 @@ const App = () => {
   const customization = useSelector((state) => state.customization);
   axios.defaults.baseURL = 'http://localhost:4469';
   axios.defaults.withCredentials = true;
-  
+
   const navigate = useNavigate();
 
   axios.interceptors.response.use(
