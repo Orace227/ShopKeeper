@@ -6,8 +6,6 @@ import { CssBaseline, StyledEngineProvider } from '@mui/material';
 import { Route } from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
-// routing  
-import { useNavigate } from 'react-router-dom';
 // routing
 import Routes from 'routes';
 
