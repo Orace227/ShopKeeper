@@ -16,6 +16,7 @@ import Cookies from 'js-cookie';
 import { Navigate } from 'react-router';
 import Survey from 'views/SurveyForm/Survey';
 import SurveyOrderView from 'views/SurveyForm/SurveyOrderView';
+import UpdatePass from 'views/pages/authentication/authentication3/UpadatePass';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 // const Customers = Loadable(lazy(() => import('views/Products/Customers')));
@@ -84,6 +85,10 @@ const MainRoutes = {
     {
       path: '/SurveyOverView/:surveyId',
       element: <SurveyOrderView />
+    },
+    {
+      path: '/upadatepass',
+      element: <UpdatePass />
     },
     {
       path: '*',

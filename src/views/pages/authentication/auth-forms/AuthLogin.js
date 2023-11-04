@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +17,7 @@ import {
   OutlinedInput,
   Stack,
   Typography,
-  useMediaQuery
+  
 } from '@mui/material';
 
 // third party
@@ -33,23 +32,16 @@ import AnimateButton from 'ui-component/extended/AnimateButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import Google from 'assets/images/icons/social-google.svg';
 import axios from 'axios';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const FirebaseLogin = ({ ...others }) => {
-// const navigate = useNavigate();
   const theme = useTheme();
   const scriptedRef = useScriptRef();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-  const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
   const navigate = useNavigate();
-  const googleHandler = async () => {
-    console.error('Login');
-  };
-
+  
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -58,38 +50,7 @@ const FirebaseLogin = ({ ...others }) => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-  /* eslint-disable no-unused-vars */
-  // const handleLogin = async (values, {setStatus}) => {
-  //   try {
-  //     const response = await fetch('http://localhost:4469/login', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         email: values.email,
-  //         password: values.password,
-  //       })
-  //     });
   
-  //     if (response.ok) {
-  //       setStatus({ success: true });
-  //       console.log("success");
-  //     } else {
-  //       const data = await response.json();
-  //       setStatus({ success: false });
-  //       setErrors({ submit: data.error || 'Login failed' });
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     setStatus({ success: false });
-  //     setErrors({ submit: err.message });
-  //   }
-  // };
-  // const handleSuccessfulLogin = () => {
-  //   // Redirect to the home page
-  //   navigate.push('/dashboard');
-  // }
 
   const handleSubmit = async (values, setErrors, setStatus, setSubmitting) => {
     try {
@@ -122,27 +83,6 @@ const FirebaseLogin = ({ ...others }) => {
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
         <Grid item xs={12}>
-          <AnimateButton>
-            <Button
-              disableElevation
-              fullWidth
-              onClick={googleHandler}
-              size="large"
-              variant="outlined"
-              sx={{
-                color: 'grey.700',
-                backgroundColor: theme.palette.grey[50],
-                borderColor: theme.palette.grey[100]
-              }}
-            >
-              <Box sx={{ mr: { xs: 1, sm: 2, width: 20 } }}>
-                <img src={Google} alt="google" width={16} height={16} style={{ marginRight: matchDownSM ? 8 : 16 }} />
-              </Box>
-              Sign in with Google
-            </Button>
-          </AnimateButton>
-        </Grid>
-        <Grid item xs={12}>
           <Box
             sx={{
               alignItems: 'center',
@@ -151,32 +91,12 @@ const FirebaseLogin = ({ ...others }) => {
           >
             <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
 
-            <Button
-              variant="outlined"
-              sx={{
-                cursor: 'unset',
-                m: 2,
-                py: 0.5,
-                px: 7,
-                borderColor: `${theme.palette.grey[100]} !important`,
-                color: `${theme.palette.grey[900]}!important`,
-                fontWeight: 500,
-                borderRadius: `${customization.borderRadius}px`
-              }}
-              disableRipple
-              disabled
-            >
-              OR
-            </Button>
+            
 
             <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
           </Box>
         </Grid>
-        <Grid item xs={12} container alignItems="center" justifyContent="center">
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1">Sign in with Email address</Typography>
-          </Box>
-        </Grid>
+       
       </Grid>
 
       <Formik
@@ -209,7 +129,7 @@ const FirebaseLogin = ({ ...others }) => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-email-login">Email Address / Username</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-email-login">Email Address</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-email-login"
                 type="email"
@@ -280,14 +200,14 @@ const FirebaseLogin = ({ ...others }) => {
                 <Button disableElevation
                 disabled={isSubmitting}
                 fullWidth
+                className=' text-purple-900 font-semibold hover:text-white'
                 size="large"
                 type="submit"
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}>
-
-                  Sign in
-                </Button>
+                  Login                
+                  </Button>
               </AnimateButton>
             </Box>
           </form>
