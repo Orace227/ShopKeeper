@@ -29,7 +29,6 @@ import {
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
 // import UpgradePlanCard from './UpgradePlanCard';
-import User1 from 'assets/images/users/user-round.svg';
 
 // assets
 import { IconLogout, IconSettings } from '@tabler/icons';
@@ -99,7 +98,6 @@ const ProfileSection = () => {
             lineHeight: 0
           }
         }}
-        
         label={<IconSettings stroke={1.5} size="1.5rem" color={theme.palette.primary.main} />}
         variant="outlined"
         ref={anchorRef}
