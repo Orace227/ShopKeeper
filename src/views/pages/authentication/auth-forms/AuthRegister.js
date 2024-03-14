@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as Yup from 'yup';
 import { Formik, Form, ErrorMessage, Field } from 'formik';
 import { useNavigate } from 'react-router-dom';
@@ -6,28 +6,21 @@ import {
   Box,
   Button,
   Checkbox,
-  Divider,
   FormControl,
   FormControlLabel,
   FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
   TextField,
-  Typography,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-import Customization from 'layout/Customization';
-import { Google } from '@mui/icons-material';
 import axios from 'axios';
-
-const validDepartments = ['Dept1', 'Dept2'];
+import toast, { Toaster } from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
   empId: Yup.number()
@@ -35,9 +28,11 @@ const validationSchema = Yup.object().shape({
     .positive('Employee ID must be a positive number')
     .required('Employee ID is required'),
   username: Yup.string().required('Username is required').trim(),
-  dept: Yup.string().required('Department is required').oneOf(validDepartments, 'Invalid department'),
+  dept: Yup.string().required('Department is required'),
   designation: Yup.string(),
-  mNumber: Yup.string(),
+  mNumber: Yup.string()
+    .matches(/^[0-9]{10}$/, 'Mobile number must be exactly 10 digits and should not contain characters')
+    .required('Mobile Number is required'),
   email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
   password: Yup.string().max(255).required('Password is required'),
   confirmPass: Yup.string()
@@ -60,14 +55,10 @@ const initialValues = {
 const FirebaseRegister = () => {
   const theme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
-  // const [checked, setChecked] = useState(true);
-  const [strength, setStrength] = useState(0);
-  const [level, setLevel] = useState();
+  const [isSubmitting, setIsSubmitting] = useState(true);
+
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
-  const googleHandler = async () => {
-    console.error('Register');
-  };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -76,16 +67,6 @@ const FirebaseRegister = () => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
-  const changePassword = (value) => {
-    const temp = strengthIndicator(value);
-    setStrength(temp);
-    setLevel(strengthColor(temp));
-  };
-
-  useEffect(() => {
-    changePassword('123456');
-  }, []);
 
   const handleSubmit = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
@@ -104,62 +85,23 @@ const FirebaseRegister = () => {
       setSubmitting(false);
     } catch (error) {
       console.error(error);
-      setErrors({ submit: error.message });
+      if (error.response.status === 400) {
+        toast.error('User already exist!!!');
+        setErrors({ submit: 'User already exist!!! Change your email to continue' });
+      }
+
+      if (error.response.status === 500) {
+        toast.error('username already exists!!!');
+        setErrors({ submit: 'username already exists!!!!!! Change your username to continue' });
+      }
+      // setErrors({ submit: error.message });
       setSubmitting(false);
     }
   };
 
   return (
     <>
-      <Grid container direction="column" justifyContent="center" spacing={2}>
-        <Grid item xs={12}>
-          <AnimateButton>
-            <Button
-              variant="outlined"
-              fullWidth
-              onClick={googleHandler}
-              size="large"
-              sx={{
-                color: 'grey.700',
-                backgroundColor: theme.palette.grey[50],
-                borderColor: theme.palette.grey[100]
-              }}
-            >
-              <Box sx={{ mr: { xs: 1, sm: 2, width: 20 } }}>
-                <img src={Google} alt="google" width={16} height={16} style={{ marginRight: matchDownSM ? 8 : 16 }} />
-              </Box>
-              Sign up with Google
-            </Button>
-          </AnimateButton>
-        </Grid>
-        <Grid item xs={12}>
-          <Box sx={{ alignItems: 'center', display: 'flex' }}>
-            <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-            <Button
-              variant="outlined"
-              sx={{
-                cursor: 'unset',
-                m: 2,
-                py: 0.5,
-                px: 7,
-                borderColor: `${theme.palette.grey[100]} !important`,
-                color: `${theme.palette.grey[900]}!important`,
-                fontWeight: 500,
-                borderRadius: `${Customization.borderRadius}px`
-              }}
-              disableRipple
-              disabled
-            ></Button>
-            <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-          </Box>
-        </Grid>
-        <Grid item xs={12} container alignItems="center" justifyContent="center">
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1">Sign up with Email address</Typography>
-          </Box>
-        </Grid>
-      </Grid>
-
+      <Toaster />
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
         <Form noValidate>
           <Grid container spacing={matchDownSM ? 0 : 2}>
@@ -180,20 +122,17 @@ const FirebaseRegister = () => {
             </Grid>
             <Grid item xs={12}>
               <Field as={TextField} fullWidth label="Mobile Number" margin="normal" name="mNumber" type="text" />
+              <ErrorMessage name="mNumber" component={FormHelperText} error />
+            </Grid>
+            <Grid item xs={12}>
+              <Field as={TextField} fullWidth label="email" margin="normal" name="email" type="text" />
+              <ErrorMessage name="email" component={FormHelperText} error />
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel htmlFor="outlined-adornment-email-register">Email Address</InputLabel>
-                <Field as={TextField} id="outlined-adornment-email-register" type="email" name="email" />
-                <ErrorMessage name="email" component={FormHelperText} error />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="outlined-adornment-password-register">Password</InputLabel>
                 <Field
+                  label="Password"
                   as={TextField}
-                  id="outlined-adornment-password-register"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   InputProps={{
@@ -216,46 +155,64 @@ const FirebaseRegister = () => {
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel htmlFor="outlined-adornment-confirm-password-register">Confirm Password</InputLabel>
                 <Field
+                  label="Confirm Password"
                   as={TextField}
                   id="outlined-adornment-confirm-password-register"
                   type={showPassword ? 'text' : 'password'}
                   name="confirmPass"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 <ErrorMessage name="confirmPass" component={FormHelperText} error />
               </FormControl>
             </Grid>
           </Grid>
 
-          {strength !== 0 && (
-            <FormControl fullWidth>
-              <Box sx={{ mb: 2 }}>
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item>
-                    <Box style={{ backgroundColor: level?.color }} sx={{ width: 85, height: 8, borderRadius: '7px' }} />
-                  </Grid>
-                  <Grid item>
-                    <Typography variant="subtitle1" fontSize="0.75rem">
-                      {level?.label}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Box>
-            </FormControl>
-          )}
-
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
-              <FormControlLabel control={<Checkbox name="checked" color="primary" />} label="Agree with&nbsp;Terms & Condition." />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="checked"
+                    color="primary"
+                    onChange={() => {
+                      setIsSubmitting(!isSubmitting);
+                    }}
+                  />
+                }
+                label="Agree with&nbsp;Terms & Condition."
+              />
             </Grid>
           </Grid>
           <ErrorMessage name="submit" component={FormHelperText} error />
 
           <Box sx={{ mt: 2 }}>
             <AnimateButton>
-              <Button fullWidth size="large" type="submit" color="secondary">
-                Sign up
+              <Button
+                disableElevation
+                disabled={isSubmitting}
+                fullWidth
+                size="large"
+                type="submit"
+                variant="contained"
+                color="secondary"
+                onClick={handleSubmit}
+                className="bg-purple-700 hover:bg-purple-500"
+              >
+                Signup
               </Button>
             </AnimateButton>
           </Box>

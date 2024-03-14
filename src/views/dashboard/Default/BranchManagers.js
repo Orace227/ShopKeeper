@@ -158,7 +158,10 @@ export default function BranchManagers() {
   const downloadPdf = async (pdfUrl, fileName) => {
     try {
       console.log(pdfUrl);
-      const response = await fetch(pdfUrl);
+      const response = await fetch(pdfUrl, {
+        credentials: 'include',
+        method: 'POST'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch PDF');
       }
@@ -184,9 +187,9 @@ export default function BranchManagers() {
     // const isDelete = window.confirm('Are you sure you want to approve request of Employee having name ' + user.username);
     // if (isDelete) {
     // user.isConfirmed = 'approved';
-    const pdfUrl = `http://localhost:7000/generate-pdf-branch-manager?empId=${row.empId}`;
+    const pdfUrl = `http://localhost:4469/generate-pdf-branch-manager?empId=${row.empId}`;
     console.log(row);
-    const fileName = `${row.packageName}.pdf`;
+    const fileName = `${row.username}.pdf`;
 
     // Show a "pending" toast message
     const pendingToastId = toast('Downloading PDF...', {

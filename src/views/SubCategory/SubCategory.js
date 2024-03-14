@@ -31,7 +31,7 @@ import Scrollbar from '../../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 import { useEffect } from 'react';
 import React from 'react';
-import { Formik, Form, ErrorMessage, FieldArray, Field } from 'formik';
+import { Formik, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
@@ -75,7 +75,7 @@ const TABLE_HEAD = [
   { id: 'action', label: 'Action', alignRight: false }
 ];
 
-export default function Products() {
+export default function SubCategory() {
   // const [open, setOpen] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -84,7 +84,6 @@ export default function Products() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [USERLIST, setUserlist] = useState([]);
-  const [openVariantModal, setOpenVariantModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editedUserData, setEditedUserData] = useState([]);
   const [Category, setCategory] = useState([]);
@@ -242,19 +241,6 @@ export default function Products() {
       console.error('Error fetching user data:', error);
     }
   };
-
-  const handleOpenVariantModal = (row) => {
-    try {
-      console.log(row);
-      const user = USERLIST.find((user) => user.productId == row.productId);
-      console.log(user);
-      setEditedUserData(user);
-      setOpenVariantModal(true);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
-
   const handleDeleteCustomer = async (row) => {
     try {
       const user = USERLIST.find((user) => user.productId == row.productId);
@@ -288,9 +274,6 @@ export default function Products() {
   // Function to close the edit modal
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
-  };
-  const handleCloseVariantModal = () => {
-    setOpenVariantModal(false);
   };
 
   // const handleSaveChanges = () => {
@@ -343,7 +326,7 @@ export default function Products() {
     try {
       console.log({ values });
       if (values?.productImg) {
-        // console.log('working');
+        console.log('workng');
         const parts = values?.productImgPath.split('/');
         const filename = parts[parts.length - 1];
         console.log(filename);
@@ -395,45 +378,6 @@ export default function Products() {
     }
   };
 
-  const generateSixDigitNumber = () => {
-    const min = 100000; // Smallest 6-digit number
-    const max = 999999; // Largest 6-digit number
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  const handleVariants = async (values) => {
-    console.log(values.Variants);
-    console.log(editedUserData);
-
-    // values.Variants.forEach((element) => {
-    for (let i = 0; i < values.Variants.length; i++) {
-      console.log(values.Variants[i]);
-      values.Variants[i].variantId = generateSixDigitNumber();
-    }
-    // values.push({ productId: editedUserData.productId });
-    values.productId = editedUserData.productId;
-    console.log(values);
-
-    const SubVariants = await axios.post('/CreateSubCategory', values);
-    console.log(SubVariants.data.createdCategories);
-  };
-
-  const initialVariant = {
-    variantId: 1, // You can start with 1 or any unique identifier for variants
-    variantName: ''
-  };
-
-  const initialValues = {
-    Variants: [initialVariant]
-  };
-
-  const variantsValidationSchema = Yup.object().shape({
-    products: Yup.array().of(
-      Yup.object().shape({
-        variantName: Yup.string().required('Product Name is Required')
-      })
-    )
-  });
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
@@ -578,64 +522,6 @@ export default function Products() {
             </DialogContent>
           </Dialog>
         )}
-        {openVariantModal && (
-          <Dialog open={openVariantModal} onClose={handleCloseVariantModal} maxWidth="lg" fullWidth>
-            <DialogTitle>Add Variant</DialogTitle>
-            <DialogContent>
-              <Container>
-                <Formik initialValues={initialValues} validationSchema={variantsValidationSchema} onSubmit={handleVariants}>
-                  {({ values }) => (
-                    <Form>
-                      <FieldArray name="Variants">
-                        {({ push, remove }) => (
-                          <div>
-                            {values.Variants.map((Variant, index) => (
-                              <div key={index}>
-                                <Typography variant="h4" className="mt-2" gutterBottom>
-                                  Variant: {index + 1}
-                                </Typography>
-                                <Grid container spacing={2}>
-                                  <Grid item xs={12} sm={6}>
-                                    <Field
-                                      name={`Variants[${index}].variantName`}
-                                      as={TextField}
-                                      label="variant Name"
-                                      fullWidth
-                                      margin="normal"
-                                      variant="outlined"
-                                    />
-                                    <ErrorMessage
-                                      name={`Variants[${index}].variantName`}
-                                      component="div"
-                                      className="error"
-                                      style={{ color: 'red' }}
-                                    />
-                                  </Grid>
-
-                                  <Grid item xs={12}>
-                                    <Button type="button" className="mb-3" variant="outlined" onClick={() => remove(index)}>
-                                      Remove Variant
-                                    </Button>
-                                  </Grid>
-                                </Grid>
-                              </div>
-                            ))}
-                            <Button type="button" variant="outlined" onClick={() => push({ ...initialVariant })}>
-                              Add Variant
-                            </Button>
-                          </div>
-                        )}
-                      </FieldArray>
-                      <Button type="submit" color="primary" size="large" style={{ marginTop: '1rem' }}>
-                        Submit
-                      </Button>
-                    </Form>
-                  )}
-                </Formik>
-              </Container>
-            </DialogContent>
-          </Dialog>
-        )}
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} placeholder="Products" />
 
@@ -687,13 +573,6 @@ export default function Products() {
                               <IconButton size="large" color="inherit" onClick={() => handleOpenEditModal(row)}>
                                 <Iconify icon={'eva:edit-fill'} />
                               </IconButton>
-                              <Button
-                                size="large"
-                                className="bg-blue-500 text-white hover:bg-blue-300"
-                                onClick={() => handleOpenVariantModal(row)}
-                              >
-                                Sub Variant
-                              </Button>
 
                               <IconButton
                                 size="large"

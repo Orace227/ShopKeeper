@@ -11,7 +11,7 @@ const Survey = {
   type: 'group',
   children: [
     {
-      id: 'default',
+      id: 'History',
       title: 'survey History',
       type: 'item',
       url: '/SurveyHistory',

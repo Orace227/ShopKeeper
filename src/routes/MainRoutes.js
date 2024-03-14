@@ -16,6 +16,8 @@ import Cookies from 'js-cookie';
 import { Navigate } from 'react-router';
 import Survey from 'views/SurveyForm/Survey';
 import SurveyOrderView from 'views/SurveyForm/SurveyOrderView';
+import CreateSubCategory from 'views/SubCategory/CreateSubCategory';
+import SubCategory from 'views/SubCategory/SubCategory';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 // const Customers = Loadable(lazy(() => import('views/Products/Customers')));
@@ -84,6 +86,14 @@ const MainRoutes = {
     {
       path: '/SurveyOverView/:surveyId',
       element: <SurveyOrderView />
+    },
+    {
+      path: '/CreateSubCategory',
+      element: <CreateSubCategory />
+    },
+    {
+      path: '/SubCategory',
+      element: <SubCategory />
     },
     {
       path: '*',

@@ -1,25 +1,8 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  Box,
-  Button,
-  Checkbox,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
+import { Box, Button, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
 
 // third party
 import * as Yup from 'yup';
@@ -33,22 +16,16 @@ import AnimateButton from 'ui-component/extended/AnimateButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import Google from 'assets/images/icons/social-google.svg';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const FirebaseLogin = ({ ...others }) => {
-// const navigate = useNavigate();
+  // const navigate = useNavigate();
   const theme = useTheme();
   const scriptedRef = useScriptRef();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-  const customization = useSelector((state) => state.customization);
-  const [checked, setChecked] = useState(true);
   const navigate = useNavigate();
-  const googleHandler = async () => {
-    console.error('Login');
-  };
 
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
@@ -71,7 +48,7 @@ const FirebaseLogin = ({ ...others }) => {
   //         password: values.password,
   //       })
   //     });
-  
+
   //     if (response.ok) {
   //       setStatus({ success: true });
   //       console.log("success");
@@ -93,119 +70,73 @@ const FirebaseLogin = ({ ...others }) => {
 
   const handleSubmit = async (values, setErrors, setStatus, setSubmitting) => {
     try {
-      const response = await axios.post('/login', { email: values.email, password: values.password},
-      {
-        withCredentials: true
-      }
+      const response = await axios.post(
+        '/login',
+        { email: values.email, password: values.password },
+        {
+          withCredentials: true
+        }
       );
 
       if (response.data) {
         setStatus({ success: true });
-        console.log(response.data)
+        console.log(response.data);
         navigate('/dashboard');
       } else {
         // Handle server error
         setStatus({ success: false });
         setErrors({ submit: 'Server error' });
       }
-    } catch (err) {
-      console.error(err);
-      setStatus({ success: false });
-      setErrors({ submit: err.message });
+    } catch (error) {
+      console.error(error);
+      if (error.response.status === 400) {
+        toast.error('User already exist!!!');
+        setErrors({ submit: 'User already exist!!! Change your email to continue' });
+      } else if (error.response.status === 401) {
+        toast.error('Check your Credentials!!!');
+        setErrors({ submit: 'Check your Credentials!!!' });
+      } else if (error.response.status === 404) {
+        toast.error('User not found!!!');
+        setErrors({ submit: 'User not found!!!' });
+      }
+      if (error.response.status === 500) {
+        toast.error('username already exists!!!');
+        setErrors({ submit: 'username already exists!!!!!! Change your username to continue' });
+      }
     } finally {
       setSubmitting(false);
     }
   };
-  
 
   return (
     <>
-      <Grid container direction="column" justifyContent="center" spacing={2}>
-        <Grid item xs={12}>
-          <AnimateButton>
-            <Button
-              disableElevation
-              fullWidth
-              onClick={googleHandler}
-              size="large"
-              variant="outlined"
-              sx={{
-                color: 'grey.700',
-                backgroundColor: theme.palette.grey[50],
-                borderColor: theme.palette.grey[100]
-              }}
-            >
-              <Box sx={{ mr: { xs: 1, sm: 2, width: 20 } }}>
-                <img src={Google} alt="google" width={16} height={16} style={{ marginRight: matchDownSM ? 8 : 16 }} />
-              </Box>
-              Sign in with Google
-            </Button>
-          </AnimateButton>
-        </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              alignItems: 'center',
-              display: 'flex'
-            }}
-          >
-            <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-
-            <Button
-              variant="outlined"
-              sx={{
-                cursor: 'unset',
-                m: 2,
-                py: 0.5,
-                px: 7,
-                borderColor: `${theme.palette.grey[100]} !important`,
-                color: `${theme.palette.grey[900]}!important`,
-                fontWeight: 500,
-                borderRadius: `${customization.borderRadius}px`
-              }}
-              disableRipple
-              disabled
-            >
-              OR
-            </Button>
-
-            <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-          </Box>
-        </Grid>
-        <Grid item xs={12} container alignItems="center" justifyContent="center">
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1">Sign in with Email address</Typography>
-          </Box>
-        </Grid>
-      </Grid>
-
+      <Toaster />
       <Formik
-  initialValues={{
-    email: '',
-    password: '',
-    submit: null
-  }}
-  validationSchema={Yup.object().shape({
-    email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-    password: Yup.string().max(255).required('Password is required')
-  })}
-  onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-    try {
-      const loginResult = await handleSubmit(values, setErrors, setStatus, setSubmitting);
-      if (loginResult) {
-        setSubmitting(false);
-      }
-    } catch (err) {
-      console.error(err);
-      if (scriptedRef.current) {
-        setStatus({ success: false });
-        setErrors({ submit: err.message });
-      }
-      setSubmitting(false);
-    }
-  }}
->
-
+        initialValues={{
+          email: '',
+          password: '',
+          submit: null
+        }}
+        validationSchema={Yup.object().shape({
+          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+          password: Yup.string().max(255).required('Password is required')
+        })}
+        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          try {
+            const loginResult = await handleSubmit(values, setErrors, setStatus, setSubmitting);
+            if (loginResult) {
+              setSubmitting(false);
+            }
+          } catch (err) {
+            console.error(err);
+            if (scriptedRef.current) {
+              setStatus({ success: false });
+              setErrors({ submit: err.message });
+            }
+            setSubmitting(false);
+          }
+        }}
+      >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
@@ -258,17 +189,7 @@ const FirebaseLogin = ({ ...others }) => {
                 </FormHelperText>
               )}
             </FormControl>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-              <FormControlLabel
-                control={
-                  <Checkbox checked={checked} onChange={(event) => setChecked(event.target.checked)} name="checked" color="primary" />
-                }
-                label="Remember me"
-              />
-              <Typography variant="subtitle1" color="secondary" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
-                Forgot Password?
-              </Typography>
-            </Stack>
+
             {errors.submit && (
               <Box sx={{ mt: 3 }}>
                 <FormHelperText error>{errors.submit}</FormHelperText>
@@ -277,16 +198,18 @@ const FirebaseLogin = ({ ...others }) => {
 
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
-                <Button disableElevation
-                disabled={isSubmitting}
-                fullWidth
-                size="large"
-                type="submit"
-                variant="contained"
-                color="secondary"
-                onClick={handleSubmit}>
-
-                  Sign in
+                <Button
+                  disableElevation
+                  disabled={isSubmitting}
+                  fullWidth
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleSubmit}
+                  className="bg-purple-700 hover:bg-purple-500"
+                >
+                  Signup
                 </Button>
               </AnimateButton>
             </Box>
