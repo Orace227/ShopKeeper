@@ -28,7 +28,9 @@ const Login = () => {
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
                   <Grid item>
                     <Link to="#">
+                      <div>
                       <Logo />
+                      </div>
                     </Link>
                   </Grid>
                   <Grid item xs={12}>
@@ -36,10 +38,10 @@ const Login = () => {
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color={theme.palette.secondary.main} gutterBottom variant={matchDownSM ? 'h3' : 'h2'}>
-                            Hi, Welcome Back
+                            Hi, Welcome Back  
                           </Typography>
                           <Typography variant="caption" fontSize="16px" textAlign={matchDownSM ? 'center' : 'inherit'}>
-                            Enter your credentials to continue
+                            Shopkeeper Login
                           </Typography>
                         </Stack>
                       </Grid>

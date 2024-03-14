@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as Yup from 'yup';
 import { Formik, Form, ErrorMessage, Field } from 'formik';
-import { useNavigate } from 'react-router-dom';
+
 import {
   Box,
   Button,
@@ -21,12 +21,9 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
-  empId: Yup.number()
-    .integer('Employee ID must be a number')
-    .positive('Employee ID must be a positive number')
-    .required('Employee ID is required'),
   username: Yup.string().required('Username is required').trim(),
   dept: Yup.string().required('Department is required'),
   designation: Yup.string(),
@@ -34,15 +31,15 @@ const validationSchema = Yup.object().shape({
     .matches(/^[0-9]{10}$/, 'Mobile number must be exactly 10 digits and should not contain characters')
     .required('Mobile Number is required'),
   email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-  password: Yup.string().max(255).required('Password is required'),
+  password: Yup.string().max(255).required('Password is required').matches(/^\S*$/, 'Password should not contain spaces'),
   confirmPass: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Confirm Password is required')
+    .required('Confirm Password is required'),
 });
 
 const initialValues = {
-  empId: '',
   username: '',
+  fullName: '',
   dept: '',
   designation: '',
   mNumber: '',
@@ -70,16 +67,15 @@ const FirebaseRegister = () => {
 
   const handleSubmit = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
-      const response = await axios.post('/register', values, {
+      const response = await axios.post('/register', values,
+      {
         withCredentials: true
       });
       if (response.data) {
-        // Registration was successful
         setStatus({ success: true });
-        console.log('success', response.data);
-        navigate('/dashboard');
+        setRegistrationSuccess(true); 
+        console.log('success', response.data);     
       } else {
-        // Handle registration error
         setErrors({ submit: 'Registration failed' });
       }
       setSubmitting(false);
@@ -98,7 +94,8 @@ const FirebaseRegister = () => {
       setSubmitting(false);
     }
   };
-
+  useEffect(() => {
+  }, []);
   return (
     <>
       <Toaster />
@@ -106,12 +103,11 @@ const FirebaseRegister = () => {
         <Form noValidate>
           <Grid container spacing={matchDownSM ? 0 : 2}>
             <Grid item xs={12}>
-              <Field as={TextField} fullWidth label="Employee ID" margin="normal" name="empId" type="number" />
-              <ErrorMessage name="empId" component={FormHelperText} error />
-            </Grid>
-            <Grid item xs={12}>
               <Field as={TextField} fullWidth label="Username" margin="normal" name="username" type="text" />
               <ErrorMessage name="username" component={FormHelperText} error />
+            </Grid>
+            <Grid item xs={12}>
+              <Field as={TextField} fullWidth label="Name" margin="normal" name="fullName" type="text" />
             </Grid>
             <Grid item xs={12}>
               <Field as={TextField} fullWidth label="Department" margin="normal" name="dept" type="text" />
@@ -123,6 +119,7 @@ const FirebaseRegister = () => {
             <Grid item xs={12}>
               <Field as={TextField} fullWidth label="Mobile Number" margin="normal" name="mNumber" type="text" />
               <ErrorMessage name="mNumber" component={FormHelperText} error />
+
             </Grid>
             <Grid item xs={12}>
               <Field as={TextField} fullWidth label="email" margin="normal" name="email" type="text" />
@@ -133,8 +130,36 @@ const FirebaseRegister = () => {
                 <Field
                   label="Password"
                   as={TextField}
+                  id="outlined-adornment-password-register"
                   type={showPassword ? 'text' : 'password'}
+                  margin="normal"
                   name="password"
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+                <ErrorMessage name="password" component={FormHelperText} error />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <Field
+                  label="Confirm Password"
+                  as={TextField}
+                  fullWidth label="Confirm Password"
+                  id="outlined-adornment-confirm-password-register"
+                  margin="normal"
+                  type={showPassword ? 'text' : 'password'}
+                  name="confirmPass"
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -155,6 +180,7 @@ const FirebaseRegister = () => {
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
+                <InputLabel htmlFor="outlined-adornment-confirm-password-register">Confirm Password</InputLabel>
                 <Field
                   label="Confirm Password"
                   as={TextField}
@@ -221,5 +247,6 @@ const FirebaseRegister = () => {
     </>
   );
 };
+      
 
 export default FirebaseRegister;
