@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 // material-ui
@@ -32,24 +31,19 @@ import Transitions from 'ui-component/extended/Transitions';
 
 // assets
 import { IconLogout, IconSettings } from '@tabler/icons';
-import axios from 'axios';
 // ==============================|| PROFILE MENU ||============================== //
 const ProfileSection = () => {
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
-  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
 
   const anchorRef = useRef(null);
   const handleLogout = async () => {
     try {
-      const response = await axios.get('/logout', {
-        withCredentials: true
-      });
-      if (response.status === 200) {
-        navigate('/login');
-      }
+      document.cookie = 'shopKeeperAuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+      window.location.href = '/login';
     } catch (error) {
       // Handle any errors, such as network issues or server errors
       console.error('Logout error:', error);

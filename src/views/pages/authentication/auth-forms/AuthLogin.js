@@ -71,7 +71,7 @@ const FirebaseLogin = ({ ...others }) => {
   const handleSubmit = async (values, setErrors, setStatus, setSubmitting) => {
     try {
       const response = await axios.post(
-        '/login',
+        '/shopKeeperLogin',
         { email: values.email, password: values.password },
         {
           withCredentials: true

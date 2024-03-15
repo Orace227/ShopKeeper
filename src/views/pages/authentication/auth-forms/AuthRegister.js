@@ -21,7 +21,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import toast, { Toaster } from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required('Username is required').trim(),
@@ -34,7 +33,7 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().max(255).required('Password is required').matches(/^\S*$/, 'Password should not contain spaces'),
   confirmPass: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Confirm Password is required'),
+    .required('Confirm Password is required')
 });
 
 const initialValues = {
@@ -55,7 +54,7 @@ const FirebaseRegister = () => {
   const [isSubmitting, setIsSubmitting] = useState(true);
 
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -67,21 +66,23 @@ const FirebaseRegister = () => {
 
   const handleSubmit = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
-      const response = await axios.post('/register', values,
-      {
+      const response = await axios.post('/shopKeeperRegister', values, {
         withCredentials: true
       });
       if (response.data) {
         setStatus({ success: true });
-        setRegistrationSuccess(true); 
-        console.log('success', response.data);     
+        console.log('success', response.data);
+
+        toast.success('You registered successfully!!!');
+        setErrors({ submit: 'You registered successfully' });
+        window.location.href = '/dashboard';
       } else {
         setErrors({ submit: 'Registration failed' });
       }
       setSubmitting(false);
     } catch (error) {
       console.error(error);
-      if (error.response.status === 400) {
+      if (error.response.status === 401) {
         toast.error('User already exist!!!');
         setErrors({ submit: 'User already exist!!! Change your email to continue' });
       }
@@ -94,8 +95,6 @@ const FirebaseRegister = () => {
       setSubmitting(false);
     }
   };
-  useEffect(() => {
-  }, []);
   return (
     <>
       <Toaster />
@@ -119,7 +118,6 @@ const FirebaseRegister = () => {
             <Grid item xs={12}>
               <Field as={TextField} fullWidth label="Mobile Number" margin="normal" name="mNumber" type="text" />
               <ErrorMessage name="mNumber" component={FormHelperText} error />
-
             </Grid>
             <Grid item xs={12}>
               <Field as={TextField} fullWidth label="email" margin="normal" name="email" type="text" />
@@ -150,37 +148,10 @@ const FirebaseRegister = () => {
                 <ErrorMessage name="password" component={FormHelperText} error />
               </FormControl>
             </Grid>
+
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <Field
-                  label="Confirm Password"
-                  as={TextField}
-                  fullWidth label="Confirm Password"
-                  id="outlined-adornment-confirm-password-register"
-                  margin="normal"
-                  type={showPassword ? 'text' : 'password'}
-                  name="confirmPass"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                        >
-                          {showPassword ? <Visibility /> : <VisibilityOff />}
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-                <ErrorMessage name="password" component={FormHelperText} error />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="outlined-adornment-confirm-password-register">Confirm Password</InputLabel>
+                {/* <InputLabel htmlFor="outlined-adornment-confirm-password-register">Confirm Password</InputLabel> */}
                 <Field
                   label="Confirm Password"
                   as={TextField}
@@ -247,6 +218,5 @@ const FirebaseRegister = () => {
     </>
   );
 };
-      
 
 export default FirebaseRegister;

@@ -55,7 +55,7 @@ function applySortFilter(array, comparator, query) {
 const TABLE_HEAD = [
   { id: 'EmployeeNo', label: 'Branch Manger ID', alignRight: false },
   { id: 'Name', label: 'Name', alignRight: false },
-  { id: 'Designation', label: 'Designation', alignRight: false },
+  // { id: 'Designation', label: 'Designation', alignRight: false },
   { id: 'Dept', label: 'Department', alignRight: false },
   { id: 'Email', label: 'Email', alignRight: false },
   { id: 'mobileNo', label: 'Mobile No.', alignRight: false },
@@ -75,7 +75,7 @@ export default function BranchManagers() {
   const fetchCustomers = async () => {
     const promise = new Promise((resolve, reject) => {
       axios
-        .get(`/GetEmployees?role=branch manager`, {
+        .get(`/GetBranchManagers`, {
           withCredentials: true // Include credentials (cookies) with the request
         })
         .then((response) => {
@@ -118,7 +118,7 @@ export default function BranchManagers() {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // If the checkbox is checked, select all items
-      const newSelecteds = USERLIST.map((n) => n.empId);
+      const newSelecteds = USERLIST.map((n) => n.branchManagerId);
       setSelected(newSelecteds);
     } else {
       // If the checkbox is unchecked, clear the selection
@@ -126,16 +126,16 @@ export default function BranchManagers() {
     }
   };
 
-  const handleClick = (event, empId) => {
-    const selectedIndex = selected.indexOf(empId);
+  const handleClick = (event, branchManagerId) => {
+    const selectedIndex = selected.indexOf(branchManagerId);
     let newSelected = [];
 
     if (selectedIndex === -1) {
       // If the item is not selected, add it to the selection
-      newSelected = [...selected, empId];
+      newSelected = [...selected, branchManagerId];
     } else if (selectedIndex >= 0) {
       // If the item is selected, remove it from the selection
-      newSelected = selected.filter((id) => id !== empId);
+      newSelected = selected.filter((id) => id !== branchManagerId);
     }
 
     setSelected(newSelected);
@@ -182,12 +182,12 @@ export default function BranchManagers() {
   };
 
   const handleDownloadReport = async (row) => {
-    const user = USERLIST.find((user) => user.empId == row.empId);
+    const user = USERLIST.find((user) => user.branchManagerId == row.branchManagerId);
     console.log(user);
     // const isDelete = window.confirm('Are you sure you want to approve request of Employee having name ' + user.username);
     // if (isDelete) {
     // user.isConfirmed = 'approved';
-    const pdfUrl = `http://localhost:4469/generate-pdf-branch-manager?empId=${row.empId}`;
+    const pdfUrl = `http://localhost:4469/generate-pdf-branch-manager?empId=${row.branchManagerId}`;
     console.log(row);
     const fileName = `${row.username}.pdf`;
 
@@ -250,20 +250,20 @@ export default function BranchManagers() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       // console.log(row);
-                      const { empId, username, dept, designation, mNumber, email } = row;
-                      const selectedUser = selected.indexOf(empId) !== -1;
+                      const { branchManagerId, username, dept, mNumber, email } = row;
+                      const selectedUser = selected.indexOf(branchManagerId) !== -1;
                       // const createdDate = new Date(createdAt);
                       // const formattedDate = `${createdDate.getDate()}-${createdDate.getMonth() + 1}-${createdDate.getFullYear()}`;
                       return (
                         <>
-                          <TableRow hover key={empId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                          <TableRow hover key={branchManagerId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                             <TableCell padding="checkbox">
-                              <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, empId)} />
+                              <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, branchManagerId)} />
                             </TableCell>
-                            <TableCell align="left">{empId}</TableCell>
+                            <TableCell align="left">{branchManagerId}</TableCell>
 
                             <TableCell align="left">{username}</TableCell>
-                            <TableCell align="left">{designation}</TableCell>
+                            {/* <TableCell align="left">{designation}</TableCell> */}
                             <TableCell align="left">{dept}</TableCell>
                             <TableCell align="left">{email}</TableCell>
                             <TableCell align="left">{mNumber}</TableCell>

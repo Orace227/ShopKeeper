@@ -687,13 +687,6 @@ export default function Products() {
                               <IconButton size="large" color="inherit" onClick={() => handleOpenEditModal(row)}>
                                 <Iconify icon={'eva:edit-fill'} />
                               </IconButton>
-                              <Button
-                                size="large"
-                                className="bg-blue-500 text-white hover:bg-blue-300"
-                                onClick={() => handleOpenVariantModal(row)}
-                              >
-                                Sub Variant
-                              </Button>
 
                               <IconButton
                                 size="large"

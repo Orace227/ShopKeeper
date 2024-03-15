@@ -129,10 +129,6 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
           <thead>
             <tr>
               <th className="px-6 py-3 bg-gray-200 text-left">ID</th>
-              <th className="px-6 py-3 bg-gray-200 text-left">Purchaser Name</th>
-              <th className="px-6 py-3 bg-gray-200 text-left">Department</th>
-              <th className="px-6 py-3 bg-gray-200 text-left">Mobile No</th>
-              <th className="px-6 py-3 bg-gray-200 text-left">Designation</th>
               <th className="px-6 py-3 bg-gray-200 text-left">Title</th>
               <th className="px-6 py-3 bg-gray-200 text-left">Category</th>
               <th className="px-6 py-3 bg-gray-200 text-left">Description</th>
@@ -155,10 +151,6 @@ const ProductTable = ({ row, handleCloseEditModal }) => {
               return (
                 <tr key={product.productId}>
                   <td className="px-6 py-4 whitespace-nowrap">{product.productId}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
-                  <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
-                  <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
-                  <td className="px-6 py-4 whitespace-nowrap">bhavin</td>
                   <td className="px-6 py-4 whitespace-nowrap">{product.productName}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{product.category}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{product.description}</td>

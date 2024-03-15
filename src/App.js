@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, StyledEngineProvider } from '@mui/material';
 // import index from 'index.css';
 import { Route } from 'react-router-dom';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 // routing
 import Routes from 'routes';
@@ -18,6 +18,7 @@ import NavigationScroll from './layout/NavigationScroll';
 import 'tailwindcss/tailwind.css';
 // import { CartProvider } from 'hooks/Cart/CartOrders';
 import FirebaseRegister from 'views/pages/authentication/auth-forms/AuthRegister';
+import { useEffect } from 'react';
 // import CartManager from 'Helpers/CartManager';
 
 // ==============================|| APP ||============================== //
@@ -28,37 +29,29 @@ const App = () => {
 
   const navigate = useNavigate();
 
-  axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response && error.response.status === 401) {
-        if (window.location.pathname !== '/register') {
-          console.log('Redirecting to login');
-          navigate('/login');
-        }
-      }
-      return Promise.reject(error);
+  useEffect(() => {
+    const auth = Cookies.get('shopKeeperAuthToken');
+    console.log('auth:', auth);
+    if (auth) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
     }
-  );
-  const auth = Cookies.get('Authtoken');
-
-  if (auth && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
-    navigate('/dashboard'); 
-  }
+  }, []);
 
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={themes(customization)}>
         <CssBaseline />
         {/* <CartManager> */}
-          <NavigationScroll>
-            {/* <CartProvider> */}
-            <Routes>
-              <Route path="/register" Component={FirebaseRegister}></Route>
-              <Route path="/login" Component={FirebaseRegister}></Route>
-            </Routes>
-            {/* </CartProvider>/ */}
-          </NavigationScroll>
+        <NavigationScroll>
+          {/* <CartProvider> */}
+          <Routes>
+            <Route path="/register" Component={FirebaseRegister}></Route>
+            <Route path="/login" Component={FirebaseRegister}></Route>
+          </Routes>
+          {/* </CartProvider>/ */}
+        </NavigationScroll>
         {/* </CartManager> */}
       </ThemeProvider>
     </StyledEngineProvider>

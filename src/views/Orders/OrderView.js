@@ -32,7 +32,7 @@ export default function OrderView() {
         }
       }
 
-      const User = await axios.get(`/GetEmployees?cartId=${orderData[0].cartId}`);
+      const User = await axios.get(`/GetUser?cartId=${orderData[0].cartId}`);
       console.log(User.data.findEmployees);
       const oneUser = User.data.findEmployees[0];
       setOneUser(oneUser);
@@ -101,7 +101,7 @@ export default function OrderView() {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" style={{ fontSize: '17px' }}>
-                <strong>Employee Name: </strong> {OneUser.username}
+                <strong>Employee Name: </strong> {OneUser?.username}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
